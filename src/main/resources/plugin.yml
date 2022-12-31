@@ -1,0 +1,10 @@
+name: DatapackLoader
+version: '${project.version}'
+main: com.lichenaut.datapackloader.DatapackLoader
+api-version: 1.19
+authors: [ lichenaut ]
+description: Automatically loads a datapack from the plugin folder into the server's main world, and more.
+load: STARTUP
+commands:
+  import:
+    description: "ctrl+space to see all fields"
