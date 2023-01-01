@@ -13,6 +13,6 @@ public class DLDirectoryMaker {
 
     public void makeDir(String path) {
         File dir = new File(path);
-        if (!dir.exists()) {if (!dir.mkdirs()) {plugin.console.sendMessage(ChatColor.RED + "[DatapackLoader] Could not create file '" + ChatColor.RESET + path + ChatColor.RED + "'! SecurityException?");}}
+        if (!dir.exists()) {if (!dir.mkdirs()) {plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] Could not create file '" + ChatColor.RESET + path + ChatColor.RED + "'! SecurityException?");}}
     }
 }
