@@ -6,10 +6,11 @@ disable-plugin: false
 #Datapack Downloader Options#
 #############################
 
-#Imports datapacks from .zip URLs. Examples given may not be up-to-date.
+#Imports datapacks from .zip URLs. Example given may not be up-to-date.
+#Make sure the URL is not uniquely generated, like this one:
+  #https://download2297.mediafire.com/6oydubv7s3eg/5xhz1b3hvq0ds3r/BlazeandCave%5C%27s+Advancements+Pack+1.15.2.zip
 datapack-urls:
 #  - 'https://www.stardustlabs.net/s/Terralith_119x_v235.zip'
-#  - 'https://download2297.mediafire.com/6oydubv7s3eg/5xhz1b3hvq0ds3r/BlazeandCave%5C%27s+Advancements+Pack+1.15.2.zip'
 #  - ...
 
 

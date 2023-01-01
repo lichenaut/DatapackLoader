@@ -6,5 +6,6 @@ authors: [ lichenaut ]
 description: Automatically loads a datapack from the plugin folder into the server's main world, and more.
 load: STARTUP
 commands:
-  import:
-    description: "ctrl+space to see all fields"
+  dl:
+    aliases: datapackloader
+    description: "Base argument for 'help' and 'import' commands."
