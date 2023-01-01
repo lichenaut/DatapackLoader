@@ -19,15 +19,13 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
     private final DatapackLoader plugin;
     private final String rootName;
 
-    public DLDatapackFinder(DatapackLoader plugin, String rootName) {
-        this.plugin = plugin;
-        this.rootName = rootName;
-    }
+    public DLDatapackFinder(DatapackLoader plugin, String rootName) {this.plugin = plugin;this.rootName = rootName;}
 
     public void unzipWalk(File file) throws IOException {
-        String targetFilePath = plugin.datapacksPath + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4);
+        String targetFilePath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4);
         File targetFile = new File(targetFilePath);
         if (targetFile.exists()) {return;}
+
         try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
             ZipEntry zipEntry = zipInputStream.getNextEntry();
             while (zipEntry != null) {
@@ -38,7 +36,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
         }
 
         if (DLDatapackChecker.isDatapack(targetFilePath)) {
-            plugin.activeDatapacks.put(targetFile.getName(), rootName);
+            plugin.addToActiveDatapacks(targetFile.getName(), rootName);
             FileUtils.delete(file);
             return;
         }
@@ -54,10 +52,10 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
                 if (file.getFileName().toString().endsWith(".zip")) {new DLDatapackFinder(plugin, rootName).unzipWalk(new File(String.valueOf(file)));return FileVisitResult.CONTINUE;}
                 if (file.getFileName().toString().equals("pack.mcmeta")) {
                     if (DLDatapackChecker.isDatapack(String.valueOf(file.getParent()))) {
-                        String datapackTarget = plugin.datapacksPath + DLFileSeparatorGetter.getSeparator() + file.getParent().getFileName().toString();
+                        String datapackTarget = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getParent().getFileName().toString();
                         if (new File(datapackTarget).exists()) {return FileVisitResult.CONTINUE;}
                         FileUtils.copyDirectory(file.getParent().toFile(), new File(datapackTarget));
-                        plugin.activeDatapacks.put(file.getParent().getFileName().toString(), rootName);
+                        plugin.addToActiveDatapacks(file.getParent().getFileName().toString(), rootName);
                     }
                 }
                 return FileVisitResult.CONTINUE;
@@ -65,7 +63,8 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
 
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                plugin.console.sendMessage(ChatColor.RED + "[DatapackLoader] IOException: Could not visit file '" + ChatColor.RESET + file + ChatColor.RED + "'!");
+                plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] IOException: Could not visit file '" + ChatColor.RESET + file + ChatColor.RED + "' from '" +
+                        ChatColor.RESET + rootName + ChatColor.RED + "'! Stopping process.");
                 exc.printStackTrace();
                 return FileVisitResult.TERMINATE;
             }

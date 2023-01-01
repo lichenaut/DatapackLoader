@@ -16,8 +16,8 @@ public class DLURLImporter {
 
     public DLURLImporter(DatapackLoader plugin) {this.plugin = plugin;}
 
-    public void urlImport(URL url) throws IOException, NullPointerException {
-        String packZipPath = plugin.datapacksPath + DLFileSeparatorGetter.getSeparator() + FilenameUtils.getName(url.getPath());
+    public void importUrl(URL url) throws IOException, NullPointerException {
+        String packZipPath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + FilenameUtils.getName(url.getPath());
         File packZip = new File(packZipPath);
         if (!packZip.exists()) {DLCopier.copy(new BufferedInputStream(url.openStream()), packZipPath);}
         new DLDatapackFinder(plugin, FilenameUtils.getName(url.getPath())).unzipWalk(packZip);
