@@ -5,7 +5,7 @@ Instructions:
         - Dragging and dropping by hand.
         - Pasting file URLs into 'config.yml'.
         - Enabling 'starter-datapack' in 'config.yml'.
-        - Pasting a URL into the '/datapackloader import <url>' command.
+        - Pasting a URL into the '/dl import <url>' console command.
     - Restart the server with '/stop', then start it.
 
     URL file's type should be '.zip'.

@@ -1,5 +1,7 @@
 package com.lichenaut.datapackloader;
 
+import com.lichenaut.datapackloader.commands.DLCommand;
+import com.lichenaut.datapackloader.commands.DLTabCompleter;
 import com.lichenaut.datapackloader.urlimport.DLActiveDatapacksTracker;
 import com.lichenaut.datapackloader.urlimport.DLImportChecker;
 import com.lichenaut.datapackloader.urlimport.DLURLImporter;
@@ -68,7 +70,9 @@ public final class DatapackLoader extends JavaPlugin {
             activeDatapacksTracker.deserializePackList();
             activeDatapacksTracker.updatePackList();
 
+            DLImportChecker importChecker = new DLImportChecker(plugin);
             DLURLImporter urlImporter = new DLURLImporter(plugin);
+            boolean hasDatapacks = true;
             try {
                 for (String stringUrl : config.getStringList("datapack-urls")) {
                     if (!stringUrl.endsWith(".zip")) {
@@ -76,17 +80,17 @@ public final class DatapackLoader extends JavaPlugin {
                         continue;
                     }
                     URL url = new URL(stringUrl);
-                    if (new DLImportChecker(plugin).checkUnnecessaryImport(url)) {urlImporter.importUrl(url);}
+                    if (importChecker.checkUnnecessaryImport(url)) {urlImporter.importUrl(url);}
                 }
                 if (config.getBoolean("starter-datapack") && Objects.requireNonNull(new File(datapacksFolderPath).listFiles()).length == 0) {
                     URL url = new URL("https://github.com/misode/mcmeta/archive/refs/tags/" + getServer().getClass().getPackage().getName().split("\\.")[3] + "-data.zip");
-                    if (new DLImportChecker(plugin).checkUnnecessaryImport(url)) {urlImporter.importUrl(url);}
+                    if (importChecker.checkUnnecessaryImport(url)) {urlImporter.importUrl(url);}
                 }
                 if (Objects.requireNonNull(new File(getDatapacksFolderPath()).listFiles()).length == 0) {
                     log.warning(ChatColor.RED + "[DatapackLoader] The '" + ChatColor.RESET + "..." + datapacksFolderPath + ChatColor.RED + "' folder is empty!");
                     log.info(ChatColor.YELLOW + "[DatapackLoader] Read '" + ChatColor.RESET + "README.txt" + ChatColor.YELLOW +
                             "' for instructions. Thank you for trying DatapackLoader!");
-                    getServer().getPluginManager().disablePlugin(plugin);
+                    hasDatapacks = false;
                 }
             } catch (IOException e) {
                 log.warning(ChatColor.RED + "[DatapackLoader] IOException: Could not import datapacks from the internet!");
@@ -97,19 +101,20 @@ public final class DatapackLoader extends JavaPlugin {
             }
 
             activeDatapacksTracker.serializePackList();
+            Objects.requireNonNull(getCommand("dl")).setExecutor(new DLCommand(plugin));
+            Objects.requireNonNull(getCommand("dl")).setTabCompleter(new DLTabCompleter());
 
-            DLDatapackApplier datapackApplier = new DLDatapackApplier(plugin);
-            boolean importEvent = datapackApplier.applyDatapacks(levelName);
-            if (importEvent) {
-                plugin.getLog().info(ChatColor.GREEN + "[DatapackLoader] Restarting server to apply new datapacks!");
-                plugin.getServer().shutdown();
-            }
+            if (hasDatapacks) {
+                DLDatapackApplier datapackApplier = new DLDatapackApplier(plugin);
+                boolean importEvent = datapackApplier.applyDatapacks(levelName);
+                if (importEvent) {
+                    getLog().info(ChatColor.GREEN + "[DatapackLoader] Restarting server to apply new datapacks!");
+                    getServer().shutdown();
+                }
 
-            if (!importEvent) {
-                if (config.getBoolean("developer-mode")) {new DLLevelChanger(plugin).changeLevelName();}
-
-                //register import and help commands
-                //Objects.requireNonNull(getCommand("import")).setExecutor(new ImportCommand());
+                if (!importEvent) {
+                    if (config.getBoolean("developer-mode")) {new DLLevelChanger(plugin).changeLevelName();}
+                }
             }
         }
     }

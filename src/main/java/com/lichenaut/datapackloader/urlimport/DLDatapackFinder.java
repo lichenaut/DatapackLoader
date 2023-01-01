@@ -53,8 +53,9 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
                 if (file.getFileName().toString().equals("pack.mcmeta")) {
                     if (DLDatapackChecker.isDatapack(String.valueOf(file.getParent()))) {
                         String datapackTarget = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getParent().getFileName().toString();
-                        if (new File(datapackTarget).exists()) {return FileVisitResult.CONTINUE;}
-                        FileUtils.copyDirectory(file.getParent().toFile(), new File(datapackTarget));
+                        File datapackTargetFile = new File(datapackTarget);
+                        if (datapackTargetFile.exists()) {return FileVisitResult.CONTINUE;}
+                        FileUtils.copyDirectory(file.getParent().toFile(), datapackTargetFile);
                         plugin.addToActiveDatapacks(file.getParent().getFileName().toString(), rootName);
                     }
                 }
