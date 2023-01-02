@@ -49,13 +49,13 @@ public final class DatapackLoader extends JavaPlugin {
             }
             String levelName = properties.getProperty("level-name");
 
-            /*new DLUpdateChecker(this, plugin, 12345).getVersion(version -> {//need to create resource page to get id
+            new DLUpdateChecker(this, plugin, 107149).getVersion(version -> {
                 if (this.getDescription().getVersion().equals(version)) {
                     getLogger().info("No new update available.");
                 } else {
                     getLogger().info("Update available.");
                 }
-            });*/
+            });
 
             if (config.getBoolean("developer-mode")) {
                 try {
