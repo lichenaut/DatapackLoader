@@ -6,12 +6,8 @@ import java.util.Objects;
 public class DLDatapackChecker {
 
     public static boolean isDatapack(String filePath) {
-        boolean hasData = false;
-        boolean hasMeta = false;
-        for (File sibling : Objects.requireNonNull(new File(filePath).listFiles())) {
-            if (sibling.isDirectory() && sibling.getName().equals("data")) {hasData = true;continue;}
-            if (!sibling.isDirectory() && sibling.getName().equals("pack.mcmeta")) {hasMeta = true;}
-        }
-        return hasData && hasMeta;
+        File dir = new File(filePath);
+        return Objects.requireNonNull(dir.listFiles((dir1, name) -> name.equals("pack.mcmeta"))).length == 1 &&
+                Objects.requireNonNull(dir.listFiles((dir1, name) -> name.equals("data"))).length == 1;
     }
 }

@@ -14,7 +14,7 @@ public class DLTabCompleter implements TabCompleter {
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> options = new ArrayList<>();
-        if (sender instanceof Player && (sender.hasPermission("datapackloader.help"))) {if (args.length == 1) {options.add("help");}}
+        if (sender instanceof Player && sender.hasPermission("datapackloader.help") && args.length == 1) {options.add("help");}
         return options;
     }
 }

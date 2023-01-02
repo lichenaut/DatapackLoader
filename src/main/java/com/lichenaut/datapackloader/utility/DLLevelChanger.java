@@ -1,7 +1,6 @@
 package com.lichenaut.datapackloader.utility;
 
 import com.lichenaut.datapackloader.DatapackLoader;
-import org.bukkit.ChatColor;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -17,8 +16,8 @@ public class DLLevelChanger {
     public DLLevelChanger(DatapackLoader plugin) {this.plugin = plugin;}
 
     public void changeLevelName() {
-        plugin.getLog().info("[DatapackLoader] Altering 'level-name' in 'server.properties' because developer mode is on.");
-        plugin.getLog().info("[DatapackLoader] This allows for new worlds to generate after server shutdown.");
+        plugin.getLog().info("Altering 'level-name' in 'server.properties' because developer mode is on.");
+        plugin.getLog().info("This allows for new worlds to generate after server shutdown.");
         List<String> lines = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader("server.properties"))) {
             String line;while ((line = bufferedReader.readLine()) != null) {lines.add(line);}
@@ -38,7 +37,7 @@ public class DLLevelChanger {
         try (FileWriter fileWriter = new FileWriter("server.properties")) {
             for (String string : lines) {fileWriter.write(string + "\n");}
         } catch (IOException e) {
-            plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] IOException: Could not write to '" + ChatColor.RESET + "server.properties" + ChatColor.RED + "'!");
+            plugin.getLog().severe("IOException: Could not write to 'server.properties'!");
             e.printStackTrace();
         }
     }

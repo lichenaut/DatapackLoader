@@ -1,13 +1,14 @@
 package com.lichenaut.datapackloader;
 
 import com.lichenaut.datapackloader.commands.DLCommand;
+import com.lichenaut.datapackloader.commands.DLTPCommand;
+import com.lichenaut.datapackloader.commands.DLTPTabCompleter;
 import com.lichenaut.datapackloader.commands.DLTabCompleter;
 import com.lichenaut.datapackloader.urlimport.DLActiveDatapacksTracker;
 import com.lichenaut.datapackloader.urlimport.DLImportChecker;
 import com.lichenaut.datapackloader.urlimport.DLURLImporter;
 import com.lichenaut.datapackloader.utility.*;
 import com.lichenaut.datapackloader.utility.DLWorldsDeleter;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,10 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Logger;
-
 public final class DatapackLoader extends JavaPlugin {
 
-    private DatapackLoader plugin;
     private Logger log;
     private TreeMap<String, String> activeDatapacks;//keep track of url-imported datapacks' parent .zip names to prevent unnecessary url imports
     private String dataFolderPath;
@@ -28,20 +27,20 @@ public final class DatapackLoader extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        plugin = this;
+        final DatapackLoader plugin = this;
         log = getLogger();
         getConfig().options().copyDefaults();
         saveDefaultConfig();
         Configuration config = getConfig();
 
         if (config.getBoolean("disable-plugin")) {
-            log.info("[DatapackLoader] Plugin disabled in config.yml.");
+            log.info("Plugin disabled in config.yml.");
         } else {
             Properties properties = new Properties();
             try {
                 properties.load(Files.newInputStream(Paths.get("server.properties")));
             } catch (IOException e) {
-                log.warning(ChatColor.RED + "[DatapackLoader] IOException: Could not read from '" + ChatColor.RESET + "server.properties" + ChatColor.RED + "'!");
+                log.severe("IOException: Could not read from 'server.properties'!");
                 e.printStackTrace();
             }
             String levelName = properties.getProperty("level-name");
@@ -50,7 +49,7 @@ public final class DatapackLoader extends JavaPlugin {
                 try {
                     new DLWorldsDeleter(plugin).deleteOldWorlds(levelName);
                 } catch (IOException e) {
-                    log.warning(ChatColor.RED + "[DatapackLoader] IOException: Could not delete worlds!");
+                    log.severe("IOException: Could not delete worlds!");
                     e.printStackTrace();
                 }
             }
@@ -76,7 +75,7 @@ public final class DatapackLoader extends JavaPlugin {
             try {
                 for (String stringUrl : config.getStringList("datapack-urls")) {
                     if (!stringUrl.endsWith(".zip")) {
-                        log.warning(ChatColor.RED + "[DatapackLoader] URL '" + ChatColor.RESET + stringUrl + ChatColor.RED + "' must end with a .zip file! Skipping.");
+                        log.warning("URL '" + stringUrl + "' must end with a .zip file! Skipping.");
                         continue;
                     }
                     URL url = new URL(stringUrl);
@@ -87,39 +86,37 @@ public final class DatapackLoader extends JavaPlugin {
                     if (importChecker.checkUnnecessaryImport(url)) {urlImporter.importUrl(url);}
                 }
                 if (Objects.requireNonNull(new File(getDatapacksFolderPath()).listFiles()).length == 0) {
-                    log.warning(ChatColor.RED + "[DatapackLoader] The '" + ChatColor.RESET + "..." + datapacksFolderPath + ChatColor.RED + "' folder is empty!");
-                    log.info(ChatColor.YELLOW + "[DatapackLoader] Read '" + ChatColor.RESET + "README.txt" + ChatColor.YELLOW +
-                            "' for instructions. Thank you for trying DatapackLoader!");
+                    log.warning("The '..." + datapacksFolderPath + "' folder is empty!");
+                    log.info("Read 'README.txt' for instructions. Thank you for trying DatapackLoader!");
                     hasDatapacks = false;
                 }
             } catch (IOException e) {
-                log.warning(ChatColor.RED + "[DatapackLoader] IOException: Could not import datapacks from the internet!");
+                log.severe("IOException: Could not import datapacks from the internet!");
                 e.printStackTrace();
             } catch (NullPointerException e) {
-                log.warning(ChatColor.RED + "[DatapackLoader] NullPointerException: Could not import datapacks from the internet!");
+                log.severe("NullPointerException: Could not import datapacks from the internet!");
                 e.printStackTrace();
             }
 
             activeDatapacksTracker.serializePackList();
             Objects.requireNonNull(getCommand("dl")).setExecutor(new DLCommand(plugin));
             Objects.requireNonNull(getCommand("dl")).setTabCompleter(new DLTabCompleter());
+            Objects.requireNonNull(getCommand("dltp")).setExecutor(new DLTPCommand(plugin));
+            Objects.requireNonNull(getCommand("dltp")).setTabCompleter(new DLTPTabCompleter(plugin));
 
             if (hasDatapacks) {
                 DLDatapackApplier datapackApplier = new DLDatapackApplier(plugin);
                 boolean importEvent = datapackApplier.applyDatapacks(levelName);
                 if (importEvent) {
-                    getLog().info(ChatColor.GREEN + "[DatapackLoader] Restarting server to apply new datapacks!");
+                    log.info("Restarting server to apply new datapacks!");
                     getServer().shutdown();
                 }
 
-                if (!importEvent) {
-                    if (config.getBoolean("developer-mode")) {new DLLevelChanger(plugin).changeLevelName();}
-                }
+                if (!importEvent) {if (config.getBoolean("developer-mode")) {new DLLevelChanger(plugin).changeLevelName();}}//write new code to inside this
             }
         }
     }
 
-    public DatapackLoader getPlugin() {return plugin;}
     public Logger getLog() {return log;}
     public TreeMap<String, String> getActiveDatapacks() {return activeDatapacks;}
     public String getPluginFolderPath() {return dataFolderPath;}

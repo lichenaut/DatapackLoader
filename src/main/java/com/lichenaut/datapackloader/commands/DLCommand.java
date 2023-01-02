@@ -1,20 +1,16 @@
 package com.lichenaut.datapackloader.commands;
 
 import com.lichenaut.datapackloader.DatapackLoader;
-import com.lichenaut.datapackloader.urlimport.DLImportChecker;
 import com.lichenaut.datapackloader.urlimport.DLURLImporter;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
 public class DLCommand implements CommandExecutor {
 
@@ -24,7 +20,7 @@ public class DLCommand implements CommandExecutor {
 
     public void messageSender(CommandSender sender, String message) {
         if (sender instanceof Player) {sender.sendMessage(message);
-        } else {plugin.getLog().info(message);}
+        } else {plugin.getLog().info(ChatColor.stripColor(message));}
     }
 
     @Override
@@ -35,8 +31,8 @@ public class DLCommand implements CommandExecutor {
                 "- There are four different methods of getting datapacks into the 'Datapacks' folder:\n" +
                 "    - Dragging and dropping by hand.\n    - Pasting file URLs into 'config.yml'.\n    - Enabling 'starter-datapack' in 'config.yml'.\n" +
                 "    - Pasting a URL into the '/dl import <" + ChatColor.YELLOW + "url" + ChatColor.GRAY + ">' console command.\n" +
-                "- Restart the server with '/stop', then start it.\n URL file's type should be '.zip'.";
-        String invalidMessage = ChatColor.RED + "Invalid usage of /dl. Use '" + ChatColor.GRAY + "/dl help" + ChatColor.RED + "', or use '" + ChatColor.GRAY + "/dl import <" +
+                "- Restart the server with '/stop', then start it.\nURL file's type should be '.zip'.";
+        String invalidMessage = ChatColor.RED + "Invalid usage of '/dl'. Use '" + ChatColor.GRAY + "/dl help" + ChatColor.RED + "', or use '" + ChatColor.GRAY + "/dl import <" +
                 ChatColor.YELLOW + "url" + ChatColor.GRAY + ">" + ChatColor.RED + "' in console.";
         String onlyConsoleMessage = ChatColor.RED + "Import command can only be used by console!";
         String zipMessage = ChatColor.RED + "[DatapackLoader] URL must end with a .zip file!";
@@ -51,13 +47,14 @@ public class DLCommand implements CommandExecutor {
         } else if (args[0].equals("import")) {
             if (sender instanceof Player && !sender.isOp()) {messageSender(sender, fakeUnknown);return false;}
             if (sender instanceof Player) {messageSender(sender, onlyConsoleMessage);return false;}
-            if (args.length == 1) {messageSender(sender, invalidMessage);return false;}
+            if (args.length != 2) {messageSender(sender, invalidMessage);return false;}
             if (!args[1].endsWith(".zip")) {messageSender(sender, zipMessage);return false;}
             try {
                 URL url = new URL(args[1]);
                 new DLURLImporter(plugin).importUrl(url);
+                plugin.getLog().info("Success! Stop and start the server to apply changes.");
             } catch (IOException e) {
-                plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] IOException: Could not import datapacks from URL '" + ChatColor.RESET + args[1] + ChatColor.RED + "'!");
+                plugin.getLog().severe("IOException: Could not import datapacks from URL '" + args[1] + "'!");
                 e.printStackTrace();
             }
         } else {messageSender(sender, invalidMessage);}

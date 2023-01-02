@@ -7,5 +7,6 @@ description: Automatically loads a datapack from the plugin folder into the serv
 load: STARTUP
 commands:
   dl:
-    aliases: datapackloader
     description: "Base argument for 'help' and 'import' commands."
+  dltp:
+    description: "Teleport to the center of any world in spectator mode."

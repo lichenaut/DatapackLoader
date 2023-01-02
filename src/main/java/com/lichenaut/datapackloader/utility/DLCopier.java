@@ -17,10 +17,17 @@ public class DLCopier {
         }
     }
 
-    public static void copy(BufferedInputStream inputStream, String outFilePath) throws IOException, NullPointerException {
+    public static void copy(BufferedInputStream inputStream, String outFilePath, int copyType) throws IOException, NullPointerException {
+        int capacity;
+        if (copyType == 0) {//single file
+            capacity = 4096;//4kb
+        } else {//url file
+            capacity = 1048576;//1024kb
+        }
+
         ReadableByteChannel in = Channels.newChannel(inputStream);
         WritableByteChannel out = Channels.newChannel(Files.newOutputStream(Paths.get(outFilePath)));
-        ByteBuffer bBuffer = ByteBuffer.allocateDirect(1048576);//power of 2, close to 1MB (arbitrary)
+        ByteBuffer bBuffer = ByteBuffer.allocateDirect(capacity);
         while (in.read(bBuffer) != -1) {
             bBuffer.flip();
             out.write(bBuffer);

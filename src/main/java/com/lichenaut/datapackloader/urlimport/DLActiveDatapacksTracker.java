@@ -2,7 +2,6 @@ package com.lichenaut.datapackloader.urlimport;
 
 import com.lichenaut.datapackloader.DatapackLoader;
 import com.lichenaut.datapackloader.utility.DLFileSeparatorGetter;
-import org.bukkit.ChatColor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,7 +22,7 @@ public class DLActiveDatapacksTracker {
                 plugin.addToActiveDatapacks(keyValue[0], keyValue[1]);
             }
         } catch (FileNotFoundException e) {
-            plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] FileNotFoundException: Could not read from '" + ChatColor.RESET + "activeDatapacks.txt" + ChatColor.RED + "'!");
+            plugin.getLog().severe("FileNotFoundException: Could not read from 'activeDatapacks.txt'!");
             e.printStackTrace();
         }
     }
@@ -66,8 +65,7 @@ public class DLActiveDatapacksTracker {
         try (FileWriter fileWriter = new FileWriter(plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "activeDatapacks.txt")) {
             for (Map.Entry<String, String> entry : plugin.getActiveDatapacks().entrySet()) {fileWriter.write(entry.getKey() + " " + entry.getValue() + "\n");}
         } catch (IOException e) {
-            plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] IOException: Could not write to '" + ChatColor.RESET + plugin.getPluginFolderPath() +
-                    DLFileSeparatorGetter.getSeparator() + "activeDatapacks.txt" + ChatColor.RED + "'!");
+            plugin.getLog().severe("IOException: Could not write to '" + plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "activeDatapacks.txt'!");
             e.printStackTrace();
         }
     }

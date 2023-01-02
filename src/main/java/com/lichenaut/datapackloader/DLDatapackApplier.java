@@ -3,7 +3,6 @@ package com.lichenaut.datapackloader;
 import com.lichenaut.datapackloader.utility.DLDirectoryMaker;
 import com.lichenaut.datapackloader.utility.DLFileSeparatorGetter;
 import org.apache.commons.io.FileUtils;
-import org.bukkit.ChatColor;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +16,7 @@ public class DLDatapackApplier {
 
     public boolean applyDatapacks(String levelName) {
         String worldDatapacksPath = plugin.getServer().getWorldContainer() + DLFileSeparatorGetter.getSeparator() + levelName + DLFileSeparatorGetter.getSeparator() + "datapacks";
-        DLDirectoryMaker dirMaker = new DLDirectoryMaker(plugin);
-        dirMaker.makeDir(worldDatapacksPath);
+        new DLDirectoryMaker(plugin).makeDir(worldDatapacksPath);
         boolean importEvent = false;
         for (File datapack : Objects.requireNonNull(new File(plugin.getDatapacksFolderPath()).listFiles())) {
             if (datapack.isDirectory()) {
@@ -28,8 +26,7 @@ public class DLDatapackApplier {
                     FileUtils.copyDirectory(datapack, datapackTarget);
                     importEvent = true;
                 } catch (IOException e) {
-                    plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] IOException: Could not move datapack '" + ChatColor.RESET + datapack.getName() + ChatColor.RED +
-                            "' to world folder!");
+                    plugin.getLog().severe("IOException: Could not move datapack '" + datapack.getName() + "' to world folder!");
                     e.printStackTrace();
                 }
             }

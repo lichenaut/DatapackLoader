@@ -1,7 +1,6 @@
 package com.lichenaut.datapackloader.utility;
 
 import com.lichenaut.datapackloader.DatapackLoader;
-import org.bukkit.ChatColor;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,10 +18,10 @@ public class DLResourceCreator {
             try {
                 DLCopier.byteCopy(Objects.requireNonNull(plugin.getResource(resourceName)), resourcePath);
             } catch (IOException e) {
-                plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] IOException: Could not generate '" + ChatColor.RESET + resourceName + ChatColor.RED + "'!");
+                plugin.getLog().severe("IOException: Could not generate '" + resourceName + "'!");
                 e.printStackTrace();
             } catch (NullPointerException e) {
-                plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] NullPointerException: Could not generate '" + ChatColor.RESET + resourceName + ChatColor.RED + "'!");
+                plugin.getLog().severe("NullPointerException: Could not generate '" + resourceName + "'!");
                 e.printStackTrace();
             }
         }

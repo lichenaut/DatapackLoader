@@ -6,7 +6,6 @@ import com.lichenaut.datapackloader.utility.DLDatapackChecker;
 import com.lichenaut.datapackloader.utility.DLDirectoryMaker;
 import com.lichenaut.datapackloader.utility.DLFileSeparatorGetter;
 import org.apache.commons.io.FileUtils;
-import org.bukkit.ChatColor;
 
 import java.io.*;
 import java.nio.file.*;
@@ -30,7 +29,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
             ZipEntry zipEntry = zipInputStream.getNextEntry();
             while (zipEntry != null) {
                 String childPath = targetFilePath + DLFileSeparatorGetter.getSeparator() + zipEntry.getName();
-                if (!zipEntry.isDirectory()) {DLCopier.copy(new BufferedInputStream(zipInputStream), childPath);} else {new DLDirectoryMaker(plugin).makeDir(childPath);}
+                if (!zipEntry.isDirectory()) {DLCopier.copy(new BufferedInputStream(zipInputStream), childPath, 0);} else {new DLDirectoryMaker(plugin).makeDir(childPath);}
                 zipEntry = zipInputStream.getNextEntry();
             }
         }
@@ -64,8 +63,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
 
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                plugin.getLog().warning(ChatColor.RED + "[DatapackLoader] IOException: Could not visit file '" + ChatColor.RESET + file + ChatColor.RED + "' from '" +
-                        ChatColor.RESET + rootName + ChatColor.RED + "'! Stopping process.");
+                plugin.getLog().severe("IOException: Could not visit file '" + file + "' from '" + rootName + "'! Stopping process.");
                 exc.printStackTrace();
                 return FileVisitResult.TERMINATE;
             }
