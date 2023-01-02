@@ -16,13 +16,13 @@ public class DLActiveDatapacksTracker {
     public DLActiveDatapacksTracker(DatapackLoader plugin) {this.plugin = plugin;}
 
     public void deserializePackList() {
-        try (Scanner activeDatapacksScanner = new Scanner(new File(plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "activeDatapacks.txt"))) {
+        try (Scanner activeDatapacksScanner = new Scanner(new File(plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "sourceList.txt"))) {
             while (activeDatapacksScanner.hasNextLine()) {
                 String[] keyValue = activeDatapacksScanner.nextLine().split(" ");
                 plugin.addToActiveDatapacks(keyValue[0], keyValue[1]);
             }
         } catch (FileNotFoundException e) {
-            plugin.getLog().severe("FileNotFoundException: Could not read from 'activeDatapacks.txt'!");
+            plugin.getLog().severe("FileNotFoundException: Could not read from 'sourceList.txt'!");
             e.printStackTrace();
         }
     }
@@ -45,14 +45,13 @@ public class DLActiveDatapacksTracker {
                 }
             }
         }
-        //remove all keys from treemap that share values with each of the remaining entries in the clone treemap, unless the value is "hand"
+        //remove all keys from treemap that share values with each of the remaining entries in the clone treemap, unless the value is "hand". if it is, just remove that entry
         //rationale: if a .zip supplies multiple datapacks and only one of them was removed, re-download the entire .zip
         for (Map.Entry<String, String> cloneEntry : activeDatapacksClone.entrySet()) {
-            if (!cloneEntry.getValue().equals("hand")) {
+            if (cloneEntry.getValue().equals("hand")) {plugin.getActiveDatapacks().remove(cloneEntry.getKey());
+            } else {
                 for (Map.Entry<String, String> entry : plugin.getActiveDatapacks().entrySet()) {
-                    if (cloneEntry.getValue().equals(entry.getValue())) {
-                        plugin.getActiveDatapacks().remove(entry.getKey());
-                    }
+                    if (cloneEntry.getValue().equals(entry.getValue())) {plugin.getActiveDatapacks().remove(entry.getKey());}
                 }
             }
         }
@@ -62,10 +61,10 @@ public class DLActiveDatapacksTracker {
     }
 
     public void serializePackList() {
-        try (FileWriter fileWriter = new FileWriter(plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "activeDatapacks.txt")) {
+        try (FileWriter fileWriter = new FileWriter(plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "sourceList.txt")) {
             for (Map.Entry<String, String> entry : plugin.getActiveDatapacks().entrySet()) {fileWriter.write(entry.getKey() + " " + entry.getValue() + "\n");}
         } catch (IOException e) {
-            plugin.getLog().severe("IOException: Could not write to '" + plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "activeDatapacks.txt'!");
+            plugin.getLog().severe("IOException: Could not write to '" + plugin.getPluginFolderPath() + DLFileSeparatorGetter.getSeparator() + "sourceList.txt'!");
             e.printStackTrace();
         }
     }

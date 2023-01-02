@@ -63,7 +63,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
 
             @Override
             public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                plugin.getLog().severe("IOException: Could not visit file '" + file + "' from '" + rootName + "'! Stopping process.");
+                plugin.getLog().severe("IOException: Could not visit '" + file.toAbsolutePath() + "'! Stopping process.");
                 exc.printStackTrace();
                 return FileVisitResult.TERMINATE;
             }
