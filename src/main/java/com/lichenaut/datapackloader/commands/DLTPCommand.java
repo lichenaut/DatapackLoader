@@ -41,7 +41,7 @@ public class DLTPCommand implements CommandExecutor {
                 ChatColor.RED + ChatColor.ITALIC + "<--[HERE]";
 
         if (sender instanceof Player) {
-            if (!sender.hasPermission("datapackloader.dltp")) {messageSender(sender, fakeUnknown);return false;}
+            if (!sender.hasPermission("datapackloader.tp")) {messageSender(sender, fakeUnknown);return false;}
             if (args.length != 1) {messageSender(sender, invalidMessage);return false;}
             String[] worldNames = new String[plugin.getServer().getWorlds().size()];
             int i = 0;for (World world : plugin.getServer().getWorlds()) {worldNames[i] = world.getName();i++;}
