@@ -17,7 +17,7 @@ public class DLLevelChanger {
 
     public void changeLevelName() {
         plugin.getLog().info("Altering 'level-name' in 'server.properties' because developer mode is on.");
-        plugin.getLog().info("This allows for new worlds to generate after server shutdown.");
+        plugin.getLog().info("This allows for new worlds to generate after the server starts up again.");
         List<String> lines = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader("server.properties"))) {
             String line;while ((line = bufferedReader.readLine()) != null) {lines.add(line);}

@@ -14,13 +14,12 @@ public class DLUpdateChecker {
 
     private final JavaPlugin plugin;
     private final DatapackLoader dlPlugin;
-    private final int resourceId;
 
-    public DLUpdateChecker(JavaPlugin plugin, DatapackLoader dlPlugin, int resourceId) {this.plugin = plugin;this.dlPlugin = dlPlugin;this.resourceId = resourceId;}
+    public DLUpdateChecker(JavaPlugin plugin, DatapackLoader dlPlugin) {this.plugin = plugin;this.dlPlugin = dlPlugin;}
 
     public void getVersion(final Consumer<String> consumer) {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId).openStream(); Scanner scanner = new Scanner(inputStream)) {
+            try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + 107149).openStream(); Scanner scanner = new Scanner(inputStream)) {
                 if (scanner.hasNext()) {consumer.accept(scanner.next());}
             } catch (IOException e) {
                 dlPlugin.getLog().warning("Unable to check for updates!");
