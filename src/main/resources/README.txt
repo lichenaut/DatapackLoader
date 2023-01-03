@@ -1,14 +1,19 @@
 Instructions:
     - Move DatapackLoader.jar to the server's 'plugins' folder, then start the server.
     - Configure 'config.yml' in the newly-generated 'DatapackLoader' folder to your preferences.
-    - There are four different methods of getting datapacks into the 'Datapacks' folder:
-        - Dragging and dropping by hand.
-        - Pasting file URLs into 'config.yml'.
-        - Enabling 'starter-datapack' in 'config.yml'.
+    - There are four options for adding datapacks:
+        - Dragging and dropping by hand into the plugin's 'Datapacks' folder.
         - Pasting a URL into the '/dl import <url>' console command.
+        - Pasting URLs into 'config.yml'.
+        - Enabling 'starter-datapack' in 'config.yml'.
     - Restart the server with '/stop', then start it.
 
     URL file's type should be '.zip'.
+
+Command | Permission | Description:
+    - /dl help | datapackloader.help | Describes how to use the plugin.
+    - /dl import <url> | (console only) | Imports a datapack from a .zip URL.
+    - /dltp <worldname> | datapackloader.tp | Teleport to the given world's spawn with spectator mode.
 
 
 If you are not using a control panel to manage the server, and want the server to start up after it shuts down, copy one of the following:

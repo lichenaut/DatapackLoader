@@ -23,6 +23,8 @@ starter-datapack: false
 #Uses misode's 'mcmeta' repository: https://github.com/misode/mcmeta
 
 #The server will start up with new worlds loaded with the datapacks in 'Datapacks'.
-#Combine this with a script provided in 'README.txt' for speed!
+#Combine this with PaperMC and a script provided in 'README.txt' for speed!
 developer-mode: false
-#WARNING: This deletes worlds!
+#WARNING: This is done by changing 'level-name' in 'server.properties' on server startup.
+  #It will make the server restart a second time and delete worlds. It also generates an error on the first restart.
+  #Do not use this feature on a production server!
