@@ -50,11 +50,8 @@ public final class DatapackLoader extends JavaPlugin {
             String levelName = properties.getProperty("level-name");
 
             new DLUpdateChecker(this, plugin, 107149).getVersion(version -> {
-                if (this.getDescription().getVersion().equals(version)) {
-                    getLogger().info("No new update available.");
-                } else {
-                    getLogger().info("Update available.");
-                }
+                if (this.getDescription().getVersion().equals(version)) {getLog().info("No new update available.");
+                } else {getLog().info("Update available.");}
             });
 
             if (config.getBoolean("developer-mode")) {
@@ -66,7 +63,7 @@ public final class DatapackLoader extends JavaPlugin {
                 }
             }
 
-            dataFolderPath = getServer().getPluginsFolder() + DLFileSeparatorGetter.getSeparator() + "DatapackLoader";
+            dataFolderPath = getDataFolder().getPath();
             datapacksFolderPath = dataFolderPath + DLFileSeparatorGetter.getSeparator() + "Datapacks";
 
             DLResourceCreator resourceCreator = new DLResourceCreator(plugin);
@@ -103,7 +100,7 @@ public final class DatapackLoader extends JavaPlugin {
                 }
                 if (Objects.requireNonNull(new File(datapacksFolderPath).listFiles()).length == 0) {
                     if (config.getBoolean("starter-datapack")) {
-                        URL url = new URL("https://github.com/misode/mcmeta/archive/refs/tags/" + getServer().getClass().getPackage().getName().split("\\.")[3] + "-data.zip");
+                        URL url = new URL("https://github.com/misode/mcmeta/archive/refs/tags/" + getServer().getVersion().split("MC: ")[1].split("[)]")[0] + "-data.zip");
                         urlImporter.importUrl(url);
                     } else {
                         log.warning("The '..." + datapacksFolderPath + "' folder is empty!");
