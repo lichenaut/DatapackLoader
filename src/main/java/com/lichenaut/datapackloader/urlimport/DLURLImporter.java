@@ -20,6 +20,6 @@ public class DLURLImporter {
         String packZipPath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + FilenameUtils.getName(url.getPath());
         File packZip = new File(packZipPath);
         if (!packZip.exists()) {DLCopier.copy(new BufferedInputStream(url.openStream()), packZipPath, 1);}
-        new DLDatapackFinder(plugin, FilenameUtils.getName(url.getPath())).unzipWalk(packZip);
+        new DLDatapackFinder(plugin, FilenameUtils.getName(url.getPath())).fileWalk(packZip, true);
     }
 }

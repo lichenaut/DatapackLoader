@@ -36,11 +36,12 @@ public class DLActiveDatapacksTracker {
         //remove datapacks in both the clone treemap and the list from both the clone treemap and the list
         TreeMap<String, String> activeDatapacksClone = new TreeMap<>();
         activeDatapacksClone.putAll(plugin.getActiveDatapacks());
-        for (Map.Entry<String, String> entry : activeDatapacksClone.entrySet()) {
+        for (Iterator<Map.Entry<String, String>> iterator = activeDatapacksClone.entrySet().iterator(); iterator.hasNext();) {
+            String iterationKey = iterator.next().getKey();
             for (String name : currentDatapacks) {
-                if (entry.getKey().equals(name)) {
-                    activeDatapacksClone.remove(name);
-                    currentDatapacks.remove(entry.getKey());
+                if (iterationKey.equals(name)) {
+                    iterator.remove();
+                    currentDatapacks.remove(iterationKey);
                     break;
                 }
             }

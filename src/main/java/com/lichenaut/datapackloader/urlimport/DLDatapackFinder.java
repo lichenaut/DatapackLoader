@@ -17,29 +17,35 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
 
     private final DatapackLoader plugin;
     private final String rootName;
+    private boolean importEvent;
 
     public DLDatapackFinder(DatapackLoader plugin, String rootName) {this.plugin = plugin;this.rootName = rootName;}
 
-    public void unzipWalk(File file) throws IOException {
-        String targetFilePath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4);
+    public boolean fileWalk(File file, boolean isZip) throws IOException {
+        String targetFilePath = file.getPath();
         File targetFile = new File(targetFilePath);
-        if (targetFile.exists()) {return;}
+        if (isZip) {
+            targetFilePath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4);
+            targetFile = new File(targetFilePath);
+            if (targetFile.exists()) {return false;}
 
-        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
-            ZipEntry zipEntry = zipInputStream.getNextEntry();
-            while (zipEntry != null) {
-                String childPath = targetFilePath + DLFileSeparatorGetter.getSeparator() + zipEntry.getName();
-                if (!zipEntry.isDirectory()) {DLCopier.copy(new BufferedInputStream(zipInputStream), childPath, 0);} else {new DLDirectoryMaker(plugin).makeDir(childPath);}
-                zipEntry = zipInputStream.getNextEntry();
+            try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
+                ZipEntry zipEntry = zipInputStream.getNextEntry();
+                while (zipEntry != null) {
+                    String childPath = targetFilePath + DLFileSeparatorGetter.getSeparator() + zipEntry.getName();
+                    if (!zipEntry.isDirectory()) {DLCopier.copy(new BufferedInputStream(zipInputStream), childPath, 0);} else {new DLDirectoryMaker(plugin).makeDir(childPath);}
+                    zipEntry = zipInputStream.getNextEntry();
+                }
+            }
+
+            if (DLDatapackChecker.isDatapack(targetFilePath)) {
+                plugin.addToActiveDatapacks(targetFile.getName(), rootName);
+                FileUtils.delete(file);
+                return true;
             }
         }
 
-        if (DLDatapackChecker.isDatapack(targetFilePath)) {
-            plugin.addToActiveDatapacks(targetFile.getName(), rootName);
-            FileUtils.delete(file);
-            return;
-        }
-
+        importEvent = false;
         Files.walkFileTree(Paths.get(targetFilePath), new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
@@ -48,7 +54,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
 
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
-                if (file.getFileName().toString().endsWith(".zip")) {new DLDatapackFinder(plugin, rootName).unzipWalk(new File(String.valueOf(file)));return FileVisitResult.CONTINUE;}
+                if (file.getFileName().toString().endsWith(".zip")) {new DLDatapackFinder(plugin, rootName).fileWalk(new File(String.valueOf(file)), true);return FileVisitResult.CONTINUE;}
                 if (file.getFileName().toString().equals("pack.mcmeta")) {
                     if (DLDatapackChecker.isDatapack(String.valueOf(file.getParent()))) {
                         String datapackTarget = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getParent().getFileName().toString();
@@ -56,6 +62,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
                         if (datapackTargetFile.exists()) {return FileVisitResult.CONTINUE;}
                         FileUtils.copyDirectory(file.getParent().toFile(), datapackTargetFile);
                         plugin.addToActiveDatapacks(file.getParent().getFileName().toString(), rootName);
+                        importEvent = true;
                     }
                 }
                 return FileVisitResult.CONTINUE;
@@ -69,6 +76,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
             }
         });
         FileUtils.deleteDirectory(targetFile);
-        FileUtils.delete(file);
+        if (isZip) {FileUtils.delete(file);}
+        return importEvent;
     }
 }

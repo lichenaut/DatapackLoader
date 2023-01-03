@@ -86,8 +86,15 @@ public final class DatapackLoader extends JavaPlugin {
                 DLDatapackFinder datapackFinder = new DLDatapackFinder(plugin, "hand");
                 for (File file : Objects.requireNonNull(new File(datapacksFolderPath).listFiles())) {
                     if (file.getName().endsWith(".zip")) {
-                        datapackFinder.unzipWalk(file);
+                        datapackFinder.fileWalk(file, true);
                         importEvent = true;
+                    } else {
+                        if (!DLDatapackChecker.isDatapack(file.getPath())) {
+                            if (datapackFinder.fileWalk(file, false)) {
+                                activeDatapacks.remove(file.getName());
+                                importEvent = true;
+                            }
+                        }
                     }
                 }
                 for (String stringUrl : config.getStringList("datapack-urls")) {
