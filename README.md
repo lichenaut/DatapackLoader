@@ -1,6 +1,6 @@
 # DatapackLoader
 
-DatapackLoader is a Spigot / Paper plugin that automatically adds datapacks into your server! This plugin is intended as a tool to quicken datapack development, but it can also be used to install datapacks.
+DatapackLoader is a Spigot / (preferrably) Paper plugin that automatically adds datapacks into your server! This plugin is intended as a tool to quicken datapack development, but it can also be used to install datapacks.
 
 There are four options for adding datapacks:
 
