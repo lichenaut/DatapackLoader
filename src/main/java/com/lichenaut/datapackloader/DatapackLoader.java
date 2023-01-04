@@ -18,14 +18,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.logging.Logger;
 public final class DatapackLoader extends JavaPlugin {
 
     private Logger log;
-    private TreeMap<String, String> activeDatapacks;//keep track of url-imported datapacks' parent .zip names to prevent unnecessary url imports
+    private HashMap<String, String> activeDatapacks;//keep track of url-imported datapacks' parent .zip names to prevent unnecessary url imports
     private String dataFolderPath;
     private String datapacksFolderPath;
 
@@ -73,7 +73,7 @@ public final class DatapackLoader extends JavaPlugin {
             DLDirectoryMaker dirMaker = new DLDirectoryMaker(plugin);
             dirMaker.makeDir(datapacksFolderPath);
 
-            activeDatapacks = new TreeMap<>();
+            activeDatapacks = new HashMap<>();
             DLActiveDatapacksTracker activeDatapacksTracker = new DLActiveDatapacksTracker(plugin);
             activeDatapacksTracker.deserializePackList();
             activeDatapacksTracker.updatePackList();
@@ -148,8 +148,7 @@ public final class DatapackLoader extends JavaPlugin {
     }
 
     public Logger getLog() {return log;}
-    public TreeMap<String, String> getActiveDatapacks() {return activeDatapacks;}
+    public HashMap<String, String> getActiveDatapacks() {return activeDatapacks;}
     public String getPluginFolderPath() {return dataFolderPath;}
     public String getDatapacksFolderPath() {return datapacksFolderPath;}
-    public void addToActiveDatapacks(String key, String value) {activeDatapacks.put(key, value);}
 }

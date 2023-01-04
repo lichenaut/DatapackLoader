@@ -22,7 +22,7 @@ public class DLCopier {
         if (copyType == 0) {//single file
             capacity = 4096;//4kb
         } else {//url file
-            capacity = 1048576;//1024kb
+            capacity = 1048576;//1mb
         }
 
         ReadableByteChannel in = Channels.newChannel(inputStream);

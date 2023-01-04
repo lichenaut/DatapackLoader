@@ -39,7 +39,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
             }
 
             if (DLDatapackChecker.isDatapack(targetFilePath)) {
-                plugin.addToActiveDatapacks(targetFile.getName(), rootName);
+                plugin.getActiveDatapacks().put(targetFile.getName(), rootName);
                 FileUtils.delete(file);
                 return true;
             }
@@ -61,7 +61,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
                         File datapackTargetFile = new File(datapackTarget);
                         if (datapackTargetFile.exists()) {return FileVisitResult.CONTINUE;}
                         FileUtils.copyDirectory(file.getParent().toFile(), datapackTargetFile);
-                        plugin.addToActiveDatapacks(file.getParent().getFileName().toString(), rootName);
+                        plugin.getActiveDatapacks().put(file.getParent().getFileName().toString(), rootName);
                         importEvent = true;
                     }
                 }
