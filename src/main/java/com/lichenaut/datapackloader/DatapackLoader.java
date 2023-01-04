@@ -80,14 +80,13 @@ public final class DatapackLoader extends JavaPlugin {
 
             DLImportChecker importChecker = new DLImportChecker(plugin);
             DLURLImporter urlImporter = new DLURLImporter(plugin);
-            boolean hasDatapacks = true;
+            boolean hasDatapack = true;
             boolean importEvent = false;
             try {
                 DLDatapackFinder datapackFinder = new DLDatapackFinder(plugin, "hand");
                 for (File file : Objects.requireNonNull(new File(datapacksFolderPath).listFiles())) {
                     if (file.getName().endsWith(".zip")) {
-                        datapackFinder.fileWalk(file, true);
-                        importEvent = true;
+                        if (datapackFinder.fileWalk(file, true)) {importEvent = true;}
                     } else {
                         if (!DLDatapackChecker.isDatapack(file.getPath())) {
                             if (datapackFinder.fileWalk(file, false)) {
@@ -112,7 +111,7 @@ public final class DatapackLoader extends JavaPlugin {
                     } else {
                         log.warning("The '..." + datapacksFolderPath + "' folder is empty!");
                         log.info("Read 'README.txt' for instructions. Thank you for trying DatapackLoader!");
-                        hasDatapacks = false;
+                        hasDatapack = false;
                     }
                 }
             } catch (IOException e) {
@@ -134,7 +133,7 @@ public final class DatapackLoader extends JavaPlugin {
             //noinspection ALL
             Metrics metrics = new Metrics(plugin, pluginId);
 
-            if (hasDatapacks) {
+            if (hasDatapack) {
                 DLDatapackApplier datapackApplier = new DLDatapackApplier(plugin);
                 if (importEvent) {datapackApplier.applyDatapacks(levelName);
                 } else {importEvent = datapackApplier.applyDatapacks(levelName);}
