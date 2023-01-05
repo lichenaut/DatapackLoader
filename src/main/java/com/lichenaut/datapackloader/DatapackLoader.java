@@ -66,12 +66,12 @@ public final class DatapackLoader extends JavaPlugin {
             dataFolderPath = getDataFolder().getPath();
             datapacksFolderPath = dataFolderPath + DLFileSeparatorGetter.getSeparator() + "Datapacks";
 
+            DLDirectoryMaker dirMaker = new DLDirectoryMaker(plugin);
+            dirMaker.makeDir(datapacksFolderPath);
+
             DLResourceCreator resourceCreator = new DLResourceCreator(plugin);
             resourceCreator.createResource("README.txt");
             resourceCreator.createResource("sourceList.txt");
-
-            DLDirectoryMaker dirMaker = new DLDirectoryMaker(plugin);
-            dirMaker.makeDir(datapacksFolderPath);
 
             activeDatapacks = new HashMap<>();
             DLActiveDatapacksTracker activeDatapacksTracker = new DLActiveDatapacksTracker(plugin);
