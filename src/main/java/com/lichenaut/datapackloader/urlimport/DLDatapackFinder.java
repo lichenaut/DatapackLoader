@@ -25,7 +25,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
         String targetFilePath = file.getPath();
         File targetFile = new File(targetFilePath);
         if (isZip) {
-            targetFilePath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4);
+            targetFilePath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4) + "z";
             targetFile = new File(targetFilePath);
             if (targetFile.exists()) {return false;}
 

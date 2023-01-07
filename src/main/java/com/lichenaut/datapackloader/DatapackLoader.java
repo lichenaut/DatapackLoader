@@ -37,6 +37,10 @@ public final class DatapackLoader extends JavaPlugin {
         saveDefaultConfig();
         Configuration config = getConfig();
 
+        int pluginId = 17272;
+        //noinspection ALL
+        Metrics metrics = new Metrics(plugin, pluginId);
+
         if (config.getBoolean("disable-plugin")) {
             log.info("Plugin disabled in config.yml.");
         } else {
@@ -128,10 +132,6 @@ public final class DatapackLoader extends JavaPlugin {
             Objects.requireNonNull(getCommand("dl")).setTabCompleter(new DLTabCompleter());
             Objects.requireNonNull(getCommand("dltp")).setExecutor(new DLTPCommand(plugin));
             Objects.requireNonNull(getCommand("dltp")).setTabCompleter(new DLTPTabCompleter(plugin));
-
-            int pluginId = 17272;
-            //noinspection ALL
-            Metrics metrics = new Metrics(plugin, pluginId);
 
             if (hasDatapack) {
                 DLDatapackApplier datapackApplier = new DLDatapackApplier(plugin);

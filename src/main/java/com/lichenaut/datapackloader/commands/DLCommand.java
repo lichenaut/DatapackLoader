@@ -27,10 +27,10 @@ public class DLCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         String helpMessage = ChatColor.YELLOW + "Please read the 'README.txt' file in this plugin's folder!\n" + ChatColor.GRAY +
                 "- Move DatapackLoader.jar to the server's 'plugins' folder, then start the server.\n" +
-                "- Configure 'config.yml' in the newly-generated 'DatapackLoader' folder to your preferences.\n" +
                 "- There are four options for adding datapacks:\n" +
                 "    - Dragging and dropping by hand into the plugin's 'Datapacks' folder.\n    - Pasting a URL into the '/dl import <" + ChatColor.YELLOW + "url" + ChatColor.GRAY +
                 ">' console command.\n    - Pasting URLs into 'config.yml'.\n    - Enabling 'starter-datapack' in 'config.yml'.\n" +
+                "- Configure 'config.yml' in the newly-generated 'DatapackLoader' folder to your preferences.\n" +
                 "- Restart the server with '/stop', then start it.\nURL file's type should be '.zip'.";
         String invalidMessage = ChatColor.RED + "Invalid usage of '/dl'. Use '" + ChatColor.GRAY + "/dl help" + ChatColor.RED + "', or use '" + ChatColor.GRAY + "/dl import <" +
                 ChatColor.YELLOW + "url" + ChatColor.GRAY + ">" + ChatColor.RED + "' in console.";

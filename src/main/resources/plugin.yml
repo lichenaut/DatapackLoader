@@ -1,5 +1,5 @@
 name: DatapackLoader
-version: '1.1.4'
+version: '1.1.6'
 main: com.lichenaut.datapackloader.DatapackLoader
 api-version: 1.19
 authors: [ lichenaut ]

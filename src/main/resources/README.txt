@@ -1,11 +1,11 @@
 Instructions:
     - Move DatapackLoader.jar to the server's 'plugins' folder, then start the server.
-    - Configure 'config.yml' in the newly-generated 'DatapackLoader' folder to your preferences.
     - There are four options for adding datapacks:
         - Dragging and dropping by hand into the plugin's 'Datapacks' folder.
         - Pasting a URL into the '/dl import <url>' console command.
         - Pasting URLs into 'config.yml'.
         - Enabling 'starter-datapack' in 'config.yml'.
+    - Configure 'config.yml' in the newly-generated 'DatapackLoader' folder to your preferences.
     - Restart the server with '/stop', then start it.
 
     URL file's type should be '.zip'.
