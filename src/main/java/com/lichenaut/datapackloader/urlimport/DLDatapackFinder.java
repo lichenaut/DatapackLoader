@@ -33,7 +33,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
                 while (zipEntry != null) {
                     String childPath = targetFilePath + DLFileSeparatorGetter.getSeparator() + zipEntry.getName();
-                    if (!zipEntry.isDirectory()) {DLCopier.copy(new BufferedInputStream(zipInputStream), childPath, 0);} else {new DLDirectoryMaker(plugin).makeDir(childPath);}
+                    if (!zipEntry.isDirectory()) {DLCopier.copy(new BufferedInputStream(zipInputStream), childPath);} else {new DLDirectoryMaker(plugin).makeDir(childPath);}
                     zipEntry = zipInputStream.getNextEntry();
                 }
             }

@@ -7,8 +7,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URL;
 
@@ -24,7 +24,7 @@ public class DLCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label, @Nonnull String[] args) {
         String helpMessage = ChatColor.YELLOW + "Please read the 'README.txt' file in this plugin's folder!\n" + ChatColor.GRAY +
                 "- Move DatapackLoader.jar to the server's 'plugins' folder, then start the server.\n" +
                 "- There are four options for adding datapacks:\n" +

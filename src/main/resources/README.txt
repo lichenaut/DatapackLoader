@@ -17,6 +17,7 @@ Command | Permission | Description:
 
 
 If you are not using a control panel to manage the server, and want the server to start up after it shuts down, copy one of the following:
+Note: "nogui" is not supported on versions of Minecraft 1.15 and below.
 
 Windows: "start.bat"
     @ECHO OFF

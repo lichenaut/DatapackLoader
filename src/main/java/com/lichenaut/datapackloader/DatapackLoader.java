@@ -101,10 +101,7 @@ public final class DatapackLoader extends JavaPlugin {
                     }
                 }
                 for (String stringUrl : config.getStringList("datapack-urls")) {
-                    if (!stringUrl.endsWith(".zip")) {
-                        log.warning("URL '" + stringUrl + "' must end with a .zip file! Skipping.");
-                        continue;
-                    }
+                    if (!stringUrl.endsWith(".zip")) {log.warning("URL '" + stringUrl + "' must end with a .zip file! Skipping.");continue;}
                     URL url = new URL(stringUrl);
                     if (importChecker.checkUnnecessaryImport(url)) {urlImporter.importUrl(url);}
                 }
