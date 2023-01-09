@@ -53,10 +53,7 @@ public final class DatapackLoader extends JavaPlugin {
             }
             String levelName = properties.getProperty("level-name");
 
-            new DLUpdateChecker(this, plugin).getVersion(version -> {
-                if (this.getDescription().getVersion().equals(version)) {getLog().info("No new update available.");
-                } else {getLog().info("Update available.");}
-            });
+            new DLUpdateChecker(this, plugin).getVersion(version -> {if (!this.getDescription().getVersion().equals(version)) {getLog().info("Update available.");}});
 
             if (config.getBoolean("developer-mode")) {
                 try {

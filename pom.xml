@@ -6,7 +6,7 @@
 
     <groupId>com.lichenaut</groupId>
     <artifactId>DatapackLoader</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <name>DatapackLoader</name>
@@ -49,6 +49,14 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <outputFile>C:\Users\Matthew\Desktop\vvtesting\plugins\DatapackLoader.jar</outputFile>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
