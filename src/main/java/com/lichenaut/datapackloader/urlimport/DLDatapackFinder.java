@@ -39,6 +39,10 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
             }
 
             if (DLDatapackChecker.isDatapack(targetFilePath)) {
+                if (!targetFile.renameTo(new File(targetFilePath.substring(0, targetFilePath.length() - 1)))) {//remove 'z'
+                    plugin.getLog().severe("Could not create remove 'z' from '" + targetFilePath + "'! SecurityException?");
+                    throw new IOException();
+                }
                 plugin.getActiveDatapacks().put(targetFile.getName(), rootName);
                 FileUtils.delete(file);
                 return true;
