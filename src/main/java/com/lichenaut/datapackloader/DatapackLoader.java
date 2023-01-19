@@ -44,6 +44,8 @@ public final class DatapackLoader extends JavaPlugin {
         if (config.getBoolean("disable-plugin")) {
             log.info("Plugin disabled in config.yml.");
         } else {
+            new DLUpdateChecker(this, plugin).getVersion(version -> {if (!this.getDescription().getVersion().equals(version)) {getLog().info("Update available.");}});
+
             Properties properties = new Properties();
             try {
                 properties.load(Files.newInputStream(Paths.get("server.properties")));
@@ -52,8 +54,6 @@ public final class DatapackLoader extends JavaPlugin {
                 e.printStackTrace();
             }
             String levelName = properties.getProperty("level-name");
-
-            new DLUpdateChecker(this, plugin).getVersion(version -> {if (!this.getDescription().getVersion().equals(version)) {getLog().info("Update available.");}});
 
             if (config.getBoolean("developer-mode")) {
                 try {
