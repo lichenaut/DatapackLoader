@@ -19,8 +19,8 @@ public class DLUpdateChecker {
 
     public void getVersion(final Consumer<String> consumer) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + 107149).openStream(); Scanner scanner = new Scanner(inputStream)) {
-                if (scanner.hasNext()) {consumer.accept(scanner.next());}
+            try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + 107149).openStream(); Scanner scanner = new
+                    Scanner(inputStream)) {if (scanner.hasNext()) {consumer.accept(scanner.next());}
             } catch (IOException e) {
                 dlPlugin.getLog().warning("Unable to check for updates!");
                 e.printStackTrace();

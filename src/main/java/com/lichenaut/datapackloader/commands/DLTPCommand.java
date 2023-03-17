@@ -36,7 +36,7 @@ public class DLTPCommand implements CommandExecutor {
                 "'.";
         String onlyPlayerMessage = ChatColor.RED + "Teleport command can only be used by a player!";
         StringBuilder arguments = new StringBuilder("dltp");
-        if (args.length != 0) {for (String arg : args) {arguments.append(" ").append(arg);}}
+        for (String arg : args) {arguments.append(" ").append(arg);}
         String fakeUnknown = ChatColor.RED + "Unknown or incomplete command, see below for error\n" + ChatColor.RED + ChatColor.UNDERLINE + arguments + ChatColor.RESET +
                 ChatColor.RED + ChatColor.ITALIC + "<--[HERE]";
 

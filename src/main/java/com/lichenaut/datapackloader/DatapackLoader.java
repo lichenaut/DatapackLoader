@@ -24,6 +24,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 public final class DatapackLoader extends JavaPlugin {
 
+    private final DatapackLoader plugin = this;
     private Logger log;
     private HashMap<String, String> activeDatapacks;//keep track of url-imported datapacks' parent .zip names to prevent unnecessary url imports
     private String dataFolderPath;
@@ -31,14 +32,12 @@ public final class DatapackLoader extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        final DatapackLoader plugin = this;
         log = getLogger();
         getConfig().options().copyDefaults();
         saveDefaultConfig();
         Configuration config = getConfig();
 
         int pluginId = 17272;
-        //noinspection ALL
         Metrics metrics = new Metrics(plugin, pluginId);
 
         if (config.getBoolean("disable-plugin")) {
@@ -86,8 +85,7 @@ public final class DatapackLoader extends JavaPlugin {
             try {
                 DLDatapackFinder datapackFinder = new DLDatapackFinder(plugin, "hand");
                 for (File file : Objects.requireNonNull(new File(datapacksFolderPath).listFiles())) {
-                    if (file.getName().endsWith(".zip")) {
-                        if (datapackFinder.fileWalk(file, true)) {importEvent = true;}
+                    if (file.getName().endsWith(".zip")) {if (datapackFinder.fileWalk(file, true)) {importEvent = true;}
                     } else {
                         if (!DLDatapackChecker.isDatapack(file.getPath())) {
                             if (datapackFinder.fileWalk(file, false)) {

@@ -11,7 +11,5 @@ public class DLImportChecker {
 
     public DLImportChecker(DatapackLoader plugin) {this.plugin = plugin;}
 
-    public boolean checkUnnecessaryImport(URL url) {
-        return !plugin.getActiveDatapacks().containsValue(FilenameUtils.getName(url.getPath()));
-    }
+    public boolean checkUnnecessaryImport(URL url) {return !plugin.getActiveDatapacks().containsValue(FilenameUtils.getName(url.getPath()));}
 }

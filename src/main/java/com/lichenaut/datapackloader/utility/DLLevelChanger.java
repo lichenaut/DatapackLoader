@@ -21,16 +21,11 @@ public class DLLevelChanger {
         List<String> lines = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader("server.properties"))) {
             String line;while ((line = bufferedReader.readLine()) != null) {lines.add(line);}
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        } catch (IOException e) {throw new RuntimeException(e);}
         for (String string : lines) {
             if (string.startsWith("level-name=")) {
-                if (string.equals("level-name=world")) {
-                    lines.set(lines.indexOf(string), "level-name=wor1d");
-                } else {
-                    lines.set(lines.indexOf(string), "level-name=world");
-                }
+                if (string.equals("level-name=world")) {lines.set(lines.indexOf(string), "level-name=wor1d");
+                } else {lines.set(lines.indexOf(string), "level-name=world");}
                 break;
             }
         }

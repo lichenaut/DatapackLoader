@@ -37,7 +37,7 @@ public class DLCommand implements CommandExecutor {
         String onlyConsoleMessage = ChatColor.RED + "Import command can only be used by console!";
         String zipMessage = ChatColor.RED + "[DatapackLoader] URL must end with a .zip file!";
         StringBuilder arguments = new StringBuilder("dl");
-        if (args.length != 0) {for (String arg : args) {arguments.append(" ").append(arg);}}
+        for (String arg : args) {arguments.append(" ").append(arg);}
         String fakeUnknown = ChatColor.RED + "Unknown or incomplete command, see below for error\n" + ChatColor.RED + ChatColor.UNDERLINE + arguments + ChatColor.RESET +
                 ChatColor.RED + ChatColor.ITALIC + "<--[HERE]";
 
