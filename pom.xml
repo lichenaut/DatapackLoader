@@ -6,7 +6,7 @@
 
     <groupId>com.lichenaut</groupId>
     <artifactId>DatapackLoader</artifactId>
-    <version>1.2.3</version>
+    <version>1.2.4</version>
     <packaging>jar</packaging>
 
     <name>DatapackLoader</name>
@@ -89,7 +89,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
