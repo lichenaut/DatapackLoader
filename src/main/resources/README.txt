@@ -43,6 +43,4 @@ Leave screen: Ctrl+A+D
 
 
 Thank you for trying DatapackLoader!
-
-DatapackLoader uses the "do whatever you want, please credit me" license.
 DatapackLoader by lichenaut

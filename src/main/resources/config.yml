@@ -10,7 +10,7 @@ disable-plugin: false
 #Make sure the URL is not uniquely generated, like this one:
   #https://download2297.mediafire.com/6oydubv7s3eg/5xhz1b3hvq0ds3r/BlazeandCave%5C%27s+Advancements+Pack+1.15.2.zip
 datapack-urls:
-#  - 'https://www.stardustlabs.net/s/Terralith_119x_v235.zip'
+#  - 'https://www.stardustlabs.net/s/Terralith_120_v240.zip'
 #  - ...
 
 

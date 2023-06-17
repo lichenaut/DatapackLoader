@@ -25,7 +25,7 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
         String targetFilePath = file.getPath();
         File targetFile = new File(targetFilePath);
         if (isZip) {
-            targetFilePath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4) + "z";
+            targetFilePath = plugin.getDatapacksFolderPath() + DLFileSeparatorGetter.getSeparator() + file.getName().substring(0, file.getName().length()-4);
             targetFile = new File(targetFilePath);
             if (targetFile.exists()) {return false;}
 
@@ -33,16 +33,17 @@ public class DLDatapackFinder extends SimpleFileVisitor<Path>{
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
                 while (zipEntry != null) {
                     String childPath = targetFilePath + DLFileSeparatorGetter.getSeparator() + zipEntry.getName();
-                    if (!zipEntry.isDirectory()) {DLCopier.copy(new BufferedInputStream(zipInputStream), childPath);} else {new DLDirectoryMaker(plugin).makeDir(childPath);}
+                    DLDirectoryMaker dirMaker = new DLDirectoryMaker(plugin);
+                    if (!zipEntry.isDirectory()) {
+                        File childFile = new File(childPath);
+                        dirMaker.makeDir(childFile.getParentFile().getPath());
+                        DLCopier.copy(new BufferedInputStream(zipInputStream), childPath);
+                    } else {dirMaker.makeDir(childPath);}
                     zipEntry = zipInputStream.getNextEntry();
                 }
             }
 
             if (DLDatapackChecker.isDatapack(targetFilePath)) {
-                if (!targetFile.renameTo(new File(targetFilePath.substring(0, targetFilePath.length() - 1)))) {//remove 'z'
-                    plugin.getLog().severe("Could not create remove 'z' from '" + targetFilePath + "'! SecurityException?");
-                    throw new IOException();
-                }
                 plugin.getActiveDatapacks().put(targetFile.getName(), rootName);
                 FileUtils.delete(file);
                 return true;
