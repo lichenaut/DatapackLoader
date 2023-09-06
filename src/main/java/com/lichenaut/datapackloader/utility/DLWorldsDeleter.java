@@ -5,29 +5,27 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 public class DLWorldsDeleter {
 
-    private final DatapackLoader plugin;
+    private final File[] containerFiles;
 
-    public DLWorldsDeleter(DatapackLoader plugin) {this.plugin = plugin;}
+    public DLWorldsDeleter(DatapackLoader plugin) {
+        containerFiles = plugin.getServer().getWorldContainer().listFiles();
+    }
 
     public void deleteOldWorlds(String levelName) throws IOException {
-        //check for a 'level.dat', 'session.lock', and at least one folder to verify that it is a world
-        for (File file : Objects.requireNonNull(plugin.getServer().getWorldContainer().listFiles())) {
-            boolean levelDat = false;boolean sessionLock = false;boolean hasFolder = false;
-            if (file.isDirectory() && !file.getName().startsWith(levelName)) {
-                for (File f : Objects.requireNonNull(file.listFiles())) {
-                    if (!f.isDirectory()) {
-                        if (f.getName().equals("level.dat")) {levelDat = true;continue;}
-                        if (f.getName().equals("session.lock")) {sessionLock = true;}
-                        continue;
-                    }
-                    if (f.isDirectory() && !hasFolder) {hasFolder = true;}
-                }
-                if (levelDat && sessionLock && hasFolder) {FileUtils.deleteDirectory(file);}
-            }
+        for (File file : containerFiles) {
+            if (!file.isDirectory() || file.getName().startsWith(levelName)) continue;
+
+            File[] files = file.listFiles();
+            if (files == null) continue;
+
+            boolean hasFolder = false, levelDat = false, sessionLock = false;
+            for (File f : files)
+                if (f.isDirectory()) {if (!hasFolder) hasFolder = true;} else if (f.getName().equals("level.dat")) levelDat = true; else if (f.getName().equals("session.lock")) sessionLock = true;
+
+            if (levelDat && sessionLock && hasFolder) {FileUtils.deleteDirectory(file);}
         }
     }
 }

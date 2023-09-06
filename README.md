@@ -4,7 +4,7 @@ DatapackLoader is a Spigot / (preferrably) Paper plugin that automatically adds 
 
 There are four options for adding datapacks:
 
-    - Dragging and dropping by hand into the plugin's 'Datapacks' folder.
+    - Dragging and dropping by hand into the plugin's 'datapacks' folder.
     - Pasting a URL into the '/dl import <url>' console command.
     - Pasting URLs into 'config.yml'.
     - Enabling 'starter-datapack' in 'config.yml'.

@@ -1,12 +1,12 @@
 name: DatapackLoader
 version: '${project.version}'
 main: com.lichenaut.datapackloader.DatapackLoader
-api-version: 1.14
+api-version: '1.14'
 authors: [ lichenaut ]
-description: Automatically loads a datapack from the plugin folder into the server's main world, and more.
+description: Automatically loads datapacks into the server's main world.
 load: STARTUP
 commands:
   dl:
-    description: "Base argument for 'help' and 'import' commands."
+    description: "Base command for 'help' and 'import' commands."
   dltp:
     description: "Teleport to the center of any world in spectator mode."

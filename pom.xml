@@ -48,7 +48,7 @@
                         </goals>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <outputFile>C:\Users\17203\Desktop\papertesting\plugins\DatapackLoader.jar</outputFile>
+                            <outputFile>/home/lichenaut/Desktop/papertesting/plugins/DatapackLoader.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>

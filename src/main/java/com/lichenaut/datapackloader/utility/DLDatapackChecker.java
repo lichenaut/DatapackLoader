@@ -1,13 +1,20 @@
 package com.lichenaut.datapackloader.utility;
 
 import java.io.File;
-import java.util.Objects;
 
 public class DLDatapackChecker {
 
     public static boolean isDatapack(String filePath) {
         File dir = new File(filePath);
-        return Objects.requireNonNull(dir.listFiles((dir1, name) -> name.equals("pack.mcmeta"))).length == 1 &&
-                Objects.requireNonNull(dir.listFiles((dir1, name) -> name.equals("data"))).length == 1;
+        File[] files = dir.listFiles();
+        if (files == null) return false;
+
+        boolean hasPackMeta = false, hasData = false;
+        for (File file : files) {
+            if (file.getName().equals("pack.mcmeta")) hasPackMeta = true; else if (file.getName().equals("data")) hasData = true;
+            if (hasPackMeta && hasData) break;
+        }
+
+        return hasPackMeta && hasData;
     }
 }

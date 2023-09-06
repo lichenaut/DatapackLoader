@@ -16,24 +16,23 @@ public class DLLevelChanger {
     public DLLevelChanger(DatapackLoader plugin) {this.plugin = plugin;}
 
     public void changeLevelName() {
-        plugin.getLog().info("Altering 'level-name' in 'server.properties' because developer mode is on.");
-        plugin.getLog().info("This allows for new worlds to generate after the server starts up again.");
+        plugin.getLog().warning("Altering 'level-name' in 'server.properties' because developer mode is on.");
+        plugin.getLog().warning("This allows for new worlds to generate after the server starts up again.");
+
         List<String> lines = new ArrayList<>();
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader("server.properties"))) {
             String line;while ((line = bufferedReader.readLine()) != null) {lines.add(line);}
         } catch (IOException e) {throw new RuntimeException(e);}
+
         for (String string : lines) {
             if (string.startsWith("level-name=")) {
-                if (string.equals("level-name=world")) {lines.set(lines.indexOf(string), "level-name=wor1d");
-                } else {lines.set(lines.indexOf(string), "level-name=world");}
+                if (string.equals("level-name=world")) lines.set(lines.indexOf(string), "level-name=wor1d"); else lines.set(lines.indexOf(string), "level-name=world");
                 break;
             }
         }
+
         try (FileWriter fileWriter = new FileWriter("server.properties")) {
             for (String string : lines) {fileWriter.write(string + "\n");}
-        } catch (IOException e) {
-            plugin.getLog().severe("IOException: Could not write to 'server.properties'!");
-            e.printStackTrace();
-        }
+        } catch (IOException e) {e.printStackTrace();}
     }
 }

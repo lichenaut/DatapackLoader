@@ -6,14 +6,15 @@ import com.lichenaut.datapackloader.commands.DLTPTabCompleter;
 import com.lichenaut.datapackloader.commands.DLTabCompleter;
 import com.lichenaut.datapackloader.urlimport.DLActiveDatapacksTracker;
 import com.lichenaut.datapackloader.urlimport.DLDatapackFinder;
-import com.lichenaut.datapackloader.urlimport.DLImportChecker;
 import com.lichenaut.datapackloader.urlimport.DLURLImporter;
 import com.lichenaut.datapackloader.utility.*;
+import org.apache.commons.io.FilenameUtils;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -22,13 +23,12 @@ import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+@SuppressWarnings({"deprecation", "ResultOfMethodCallIgnored", "unused"})
 public final class DatapackLoader extends JavaPlugin {
 
-    private final DatapackLoader plugin = this;
     private Logger log;
-    private HashMap<String, String> activeDatapacks;//keep track of url-imported datapacks' parent .zip names to prevent unnecessary url imports
-    private String dataFolderPath;
-    private String datapacksFolderPath;
+    private HashMap<String, String> activeDatapacks;// Keeps track of url-imported datapacks' parent .zip names to prevent unnecessary url imports.
 
     @Override
     public void onEnable() {
@@ -38,109 +38,96 @@ public final class DatapackLoader extends JavaPlugin {
         Configuration config = getConfig();
 
         int pluginId = 17272;
-        Metrics metrics = new Metrics(plugin, pluginId);
+        Metrics metrics = new Metrics(this, pluginId);
 
-        if (config.getBoolean("disable-plugin")) {
-            log.info("Plugin disabled in config.yml.");
-        } else {
-            new DLUpdateChecker(this, plugin).getVersion(version -> {if (!this.getDescription().getVersion().equals(version)) {getLog().info("Update available.");}});
+        if (config.getBoolean("disable-plugin")) {log.info("Plugin disabled in config.yml.");return;}
 
-            Properties properties = new Properties();
-            try {
-                properties.load(Files.newInputStream(Paths.get("server.properties")));
-            } catch (IOException e) {
-                log.severe("IOException: Could not read from 'server.properties'!");
-                e.printStackTrace();
-            }
-            String levelName = properties.getProperty("level-name");
+        new DLUpdateChecker(this, this).getVersion(version -> {if (!this.getDescription().getVersion().equals(version)) {getLog().warning("Update available.");}});
 
-            if (config.getBoolean("developer-mode")) {
-                try {
-                    new DLWorldsDeleter(plugin).deleteOldWorlds(levelName);
-                } catch (IOException e) {
-                    log.severe("IOException: Could not delete worlds!");
-                    e.printStackTrace();
-                }
-            }
+        Properties properties = new Properties();
+        try {properties.load(Files.newInputStream(Paths.get("server.properties")));} catch (IOException e) {e.printStackTrace();}
+        String levelName = properties.getProperty("level-name");
 
-            dataFolderPath = getDataFolder().getPath();
-            datapacksFolderPath = dataFolderPath + DLFileSeparatorGetter.getSeparator() + "Datapacks";
+        if (config.getBoolean("developer-mode")) try {new DLWorldsDeleter(this).deleteOldWorlds(levelName);} catch (IOException e) {e.printStackTrace();}
 
-            DLDirectoryMaker dirMaker = new DLDirectoryMaker(plugin);
-            dirMaker.makeDir(datapacksFolderPath);
+        String dataFolderPath = getDataFolder().getPath();
+        String datapacksFolderPath = dataFolderPath + DLSep.getSep() + "datapacks";
+        File datapacksFolder = new File(datapacksFolderPath);
+        if (!datapacksFolder.exists()) datapacksFolder.mkdirs();
 
-            DLResourceCreator resourceCreator = new DLResourceCreator(plugin);
-            resourceCreator.createResource("README.txt");
-            resourceCreator.createResource("sourceList.txt");
+        String resourcePath = dataFolderPath + DLSep.getSep() + "README.txt";
+        if (!new File(resourcePath).exists()) {try {DLCopier.smallCopy(this.getResource("README.txt"), resourcePath);} catch (IOException e) {throw new RuntimeException(e);}}
+        resourcePath = dataFolderPath + DLSep.getSep() + "sourceList.txt";
+        if (!new File(resourcePath).exists()) {try {DLCopier.smallCopy(this.getResource("sourceList.txt"), resourcePath);} catch (IOException e) {throw new RuntimeException(e);}}
 
-            activeDatapacks = new HashMap<>();
-            DLActiveDatapacksTracker activeDatapacksTracker = new DLActiveDatapacksTracker(plugin);
-            activeDatapacksTracker.deserializePackList();
-            activeDatapacksTracker.updatePackList();
+        activeDatapacks = new HashMap<>();
+        DLActiveDatapacksTracker activeDatapacksTracker = new DLActiveDatapacksTracker(this);
+        try {activeDatapacksTracker.deserializePackList(resourcePath);} catch (FileNotFoundException e) {throw new RuntimeException(e);}
+        activeDatapacksTracker.updatePackList(datapacksFolderPath);
 
-            DLImportChecker importChecker = new DLImportChecker(plugin);
-            DLURLImporter urlImporter = new DLURLImporter(plugin);
-            boolean hasDatapack = true;
-            boolean importEvent = false;
-            try {
-                DLDatapackFinder datapackFinder = new DLDatapackFinder(plugin, "hand");
-                for (File file : Objects.requireNonNull(new File(datapacksFolderPath).listFiles())) {
-                    if (file.getName().endsWith(".zip")) {if (datapackFinder.fileWalk(file, true)) {importEvent = true;}
-                    } else {
-                        if (!DLDatapackChecker.isDatapack(file.getPath())) {
-                            if (datapackFinder.fileWalk(file, false)) {
+        DLURLImporter urlImporter = new DLURLImporter(this);
+        boolean hasDatapack = true, importEvent = false;
+        tryBlock:
+        {
+            try {manualScan:
+                {
+                    DLDatapackFinder datapackFinder = new DLDatapackFinder(this, "hand");
+                    File[] files = new File(datapacksFolderPath).listFiles();
+                    if (files == null) break manualScan;
+                    for (File file : files) { // This scan is for datapack .zips added manually
+                        if (file.getName().endsWith(".zip")) {
+                            if (datapackFinder.fileWalk(datapacksFolderPath, file, true)) importEvent = true;
+                        } else {
+                            if (DLDatapackChecker.isDatapack(file.getPath())) continue;
+
+                            if (datapackFinder.fileWalk(datapacksFolderPath, file, false)) {
                                 activeDatapacks.remove(file.getName());
                                 importEvent = true;
                             }
                         }
                     }
                 }
+
                 for (String stringUrl : config.getStringList("datapack-urls")) {
-                    if (!stringUrl.endsWith(".zip")) {log.warning("URL '" + stringUrl + "' must end with a .zip file! Skipping.");continue;}
+                    if (!stringUrl.endsWith(".zip")) {log.severe("URL '" + stringUrl + "' must end with a .zip file! Skipping.");continue;}
+
                     URL url = new URL(stringUrl);
-                    if (importChecker.checkUnnecessaryImport(url)) {urlImporter.importUrl(url);}
-                }
-                if (Objects.requireNonNull(new File(datapacksFolderPath).listFiles()).length == 0) {
-                    if (config.getBoolean("starter-datapack")) {
-                        URL url = new URL("https://github.com/misode/mcmeta/archive/refs/tags/" + getServer().getVersion().split("MC: ")[1].split("[)]")[0] + "-data.zip");
-                        urlImporter.importUrl(url);
-                    } else {
-                        log.warning("The '..." + datapacksFolderPath + "' folder is empty!");
-                        log.info("Read 'README.txt' for instructions. Thank you for trying DatapackLoader!");
-                        hasDatapack = false;
-                    }
-                }
-            } catch (IOException e) {
-                log.severe("IOException: Could not import datapacks from the internet!");
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                log.severe("NullPointerException: Could not import datapacks from the internet!");
-                e.printStackTrace();
-            }
-
-            activeDatapacksTracker.serializePackList();
-
-            Objects.requireNonNull(getCommand("dl")).setExecutor(new DLCommand(plugin));
-            Objects.requireNonNull(getCommand("dl")).setTabCompleter(new DLTabCompleter());
-            Objects.requireNonNull(getCommand("dltp")).setExecutor(new DLTPCommand(plugin));
-            Objects.requireNonNull(getCommand("dltp")).setTabCompleter(new DLTPTabCompleter(plugin));
-
-            if (hasDatapack) {
-                DLDatapackApplier datapackApplier = new DLDatapackApplier(plugin);
-                if (importEvent) {datapackApplier.applyDatapacks(levelName);
-                } else {importEvent = datapackApplier.applyDatapacks(levelName);}
-                if (importEvent) {
-                    log.info("Restarting server to apply new datapacks!");
-                    getServer().shutdown();
+                    if (!getActiveDatapacks().containsValue(FilenameUtils.getName(url.getPath()))) urlImporter.importUrl(datapacksFolderPath, url);
                 }
 
-                if (!importEvent) {if (config.getBoolean("developer-mode")) {new DLLevelChanger(plugin).changeLevelName();}}//new code goes inside !importEvent if-statement
+                File[] datapacksFolderFiles = new File(datapacksFolderPath).listFiles();
+                if (datapacksFolderFiles == null || datapacksFolderFiles.length != 0) break tryBlock;
+
+                if (config.getBoolean("starter-datapack")) {
+                    URL url = new URL("https://github.com/misode/mcmeta/archive/refs/tags/" + getServer().getVersion().split("MC: ")[1].split("[)]")[0] + "-data.zip");
+                    urlImporter.importUrl(datapacksFolderPath, url);
+                } else {
+                    log.warning("The '..." + datapacksFolderPath + "' folder is empty! Please read 'README.txt' for instructions.");
+                    hasDatapack = false;
+                }
+            } catch (IOException | NullPointerException e) {e.printStackTrace();}
+        }
+
+        activeDatapacksTracker.serializePackList(resourcePath);
+
+        Objects.requireNonNull(getCommand("dl")).setExecutor(new DLCommand(this, datapacksFolderPath));
+        Objects.requireNonNull(getCommand("dl")).setTabCompleter(new DLTabCompleter());
+        Objects.requireNonNull(getCommand("dltp")).setExecutor(new DLTPCommand(this));
+        Objects.requireNonNull(getCommand("dltp")).setTabCompleter(new DLTPTabCompleter(this));
+
+        if (hasDatapack) {
+            if (config.getBoolean("developer-mode")) {new DLLevelChanger(this).changeLevelName();}
+            String worldDatapacksPath = getServer().getWorldContainer() + DLSep.getSep() + levelName + DLSep.getSep() + "datapacks";
+            DLDatapackApplier datapackApplier = new DLDatapackApplier();
+            if (importEvent) datapackApplier.applyDatapacks(datapacksFolder, worldDatapacksPath);
+            else importEvent = datapackApplier.applyDatapacks(datapacksFolder, worldDatapacksPath);
+            if (importEvent) {
+                log.warning("Restarting server to apply new datapacks!");
+                getServer().shutdown();
             }
         }
     }
 
     public Logger getLog() {return log;}
     public HashMap<String, String> getActiveDatapacks() {return activeDatapacks;}
-    public String getPluginFolderPath() {return dataFolderPath;}
-    public String getDatapacksFolderPath() {return datapacksFolderPath;}
 }
