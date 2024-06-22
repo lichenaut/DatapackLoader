@@ -1,30 +1,25 @@
 package com.lichenaut.datapackloader;
 
-import com.lichenaut.datapackloader.cmd.DLCommand;
-import com.lichenaut.datapackloader.cmd.DLTPCommand;
-import com.lichenaut.datapackloader.cmd.DLTPTabCompleter;
-import com.lichenaut.datapackloader.cmd.DLTabCompleter;
-import com.lichenaut.datapackloader.url.ActiveDPsTracker;
+import com.lichenaut.datapackloader.cmd.*;
 import com.lichenaut.datapackloader.url.DPFinder;
 import com.lichenaut.datapackloader.url.URLImporter;
 import com.lichenaut.datapackloader.util.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
@@ -36,9 +31,9 @@ public final class Main extends JavaPlugin {
     private static final Logger logger = LogManager.getLogger("DatapackLoader");
     private static final String separator = FileSystems.getDefault().getSeparator();
     private final Messager messager = new Messager(this, logger);
-    // Keeps track of URL-imported datapacks' parent .zip names to prevent re-importing.
-    private HashMap<String, String> activeDatapacks = new HashMap<>();
     private CompletableFuture<Void> mainFuture = CompletableFuture.completedFuture(null);
+    private PluginCommand dlCommand;
+    private PluginCommand dltpCommand;
 
     @Override
     public void onEnable() {
@@ -57,121 +52,108 @@ public final class Main extends JavaPlugin {
             }
         });
 
-        Properties properties = new Properties();
-        try {
-            properties.load(Files.newInputStream(Paths.get("server.properties")));
-        } catch (IOException e) {
-            logger.error("IOException: Unable to load server.properties!\n{}", e.getMessage());
-        }
-        String levelName = properties.getProperty("level-name");
-        if (config.getBoolean("developer-mode")) {
-            try {
-                new WorldsDeleter().deleteOldWorlds(Objects.requireNonNull(this.getServer().getWorldContainer().listFiles()), levelName);
-            } catch (IOException e) {
-                logger.error("IOException: Unable to delete old worlds!\n{}", e.getMessage());
-            }
-        }
-
-        String dataFolderPath = getDataFolder().getPath();
-        String datapacksFolderPath = dataFolderPath + separator + "datapacks";
+        String pluginFolderPath = getDataFolder().getPath();
+        String datapacksFolderPath = pluginFolderPath + separator + "datapacks";
         File datapacksFolder = new File(datapacksFolderPath);
         if (!datapacksFolder.mkdirs() && !datapacksFolder.exists()) {
             throw new RuntimeException("Failed to create 'datapacks' folder!");
         }
 
-        String resourcePath = dataFolderPath + separator + "sourceList.txt";
-        if (!new File(resourcePath).exists()) {
-            try {
-                Copier.smallCopy(this.getResource("sourceList.txt"), resourcePath);
-            } catch (IOException e) {
-                logger.error("IOException: Unable to copy sourceList.txt!\n{}", e.getMessage();
-            }
-        }
-
-        ActiveDPsTracker activeDatapacksTracker = new ActiveDPsTracker(logger,this);
-        try {
-            activeDatapacksTracker.deserializePackList(resourcePath);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        activeDatapacksTracker.updatePackList(datapacksFolderPath);
-        // TODO: stopped here
         URLImporter urlImporter = new URLImporter(logger, this, separator);
-        boolean hasDatapack = true, importEvent = false;
-        tryBlock: {
-            try {
-                manualScan: {
-                    DPFinder datapackFinder = new DPFinder(this, "hand");
-                    File[] files = new File(datapacksFolderPath).listFiles();
-                    if (files == null)
-                        break manualScan;
-                    for (File file : files) { // This scan is for datapack .zips added manually
-                        if (file.getName().endsWith(".zip")) {
-                            if (datapackFinder.fileWalk(datapacksFolderPath, file, true))
-                                importEvent = true;
-                        } else {
-                            if (DPChecker.isDatapack(file.getPath()))
-                                continue;
-
-                            if (datapackFinder.fileWalk(datapacksFolderPath, file, false)) {
-                                activeDatapacks.remove(file.getName());
-                                importEvent = true;
-                            }
-                        }
+        DPFinder datapackFinder = new DPFinder(logger, this, separator);
+        File[] files = new File(datapacksFolderPath).listFiles();
+        if (files != null) {
+            for (File file : files) { // This scan is for datapack .zips added manually.
+                String fileName = file.getName();
+                if (fileName.endsWith(".zip")) {
+                    try {
+                        datapackFinder.fileWalk(datapacksFolderPath, file, true);
+                    } catch (IOException e) {
+                        throw new RuntimeException("IOException: Failed to walk .zip file!", e);
                     }
-                }
-
-                for (String stringUrl : config.getStringList("datapack-urls")) {
-                    if (!stringUrl.endsWith(".zip")) {
-                        log.severe("URL '" + stringUrl + "' must end with a .zip file! Skipping.");
+                } else {
+                    if (DPChecker.isDatapack(file.getPath())) {
                         continue;
                     }
 
-                    URL url = new URL(stringUrl);
-                    if (!getActiveDatapacks().containsValue(FilenameUtils.getName(url.getPath())))
-                        urlImporter.importUrl(datapacksFolderPath, url);
+                    try {
+                        datapackFinder.fileWalk(datapacksFolderPath, file, false);
+                    } catch (IOException e) {
+                        throw new RuntimeException("IOException: Failed to walk file!", e);
+                    }
                 }
-
-                File[] datapacksFolderFiles = new File(datapacksFolderPath).listFiles();
-                if (datapacksFolderFiles == null || datapacksFolderFiles.length != 0)
-                    break tryBlock;
-
-                if (config.getBoolean("starter-datapack")) {
-                    URL url = new URL("https://github.com/misode/mcmeta/archive/refs/tags/"
-                            + getServer().getVersion().split("MC: ")[1].split("[)]")[0] + "-data.zip");
-                    urlImporter.importUrl(datapacksFolderPath, url);
-                } else {
-                    log.warning("The '..." + datapacksFolderPath
-                            + "' folder is empty! Please read 'README.txt' for instructions.");
-                    hasDatapack = false;
-                }
-            } catch (IOException | NullPointerException e) {
-                e.printStackTrace();
             }
         }
 
-        activeDatapacksTracker.serializePackList(resourcePath);
+        mainFuture = mainFuture
+                .thenAcceptAsync(deserialized -> { // TODO: rename steps
+                    File[] datapacksFolderFiles = new File(datapacksFolderPath).listFiles();
+                    if (datapacksFolderFiles == null || datapacksFolderFiles.length != 0) {
+                        return;
+                    }
 
-        Objects.requireNonNull(getCommand("dl")).setExecutor(new DLCommand(this, datapacksFolderPath));
-        Objects.requireNonNull(getCommand("dl")).setTabCompleter(new DLTabCompleter());
-        Objects.requireNonNull(getCommand("dltp")).setExecutor(new DLTPCommand(this));
-        Objects.requireNonNull(getCommand("dltp")).setTabCompleter(new DLTPTabCompleter(this));
+                    if (config.getBoolean("starter-datapack")) {
+                        try {
+                            urlImporter.importUrl(datapacksFolderPath, new URI("https://github.com/misode/mcmeta/archive/refs/tags/"
+                                    + getServer().getVersion().split("MC: ")[1].split("[)]")[0] + "-data.zip").toURL());
+                        } catch (IOException e) {
+                            throw new RuntimeException("IOException: Failed to import starter datapack!", e);
+                        } catch (URISyntaxException e) {
+                            throw new RuntimeException("URISyntaxException: Failed to convert starter datapack string to URL!", e);
+                        }
+                    } else {
+                        logger.info("The '...{}' folder is empty. Please execute command 'dl help'.", datapacksFolderPath);
+                    }
+                });
 
-        if (hasDatapack) {
-            if (config.getBoolean("developer-mode")) {
-                new LevelChanger(this).changeLevelName();
-            }
-            String worldDatapacksPath = getServer().getWorldContainer() + DLSep.getSep() + levelName + DLSep.getSep()
-                    + "datapacks";
-            DLDatapackApplier datapackApplier = new DLDatapackApplier();
-            if (importEvent)
-                datapackApplier.applyDatapacks(datapacksFolder, worldDatapacksPath);
-            else
-                importEvent = datapackApplier.applyDatapacks(datapacksFolder, worldDatapacksPath);
-            if (importEvent) {
-                log.warning("Restarting server to apply new datapacks!");
-                getServer().shutdown();
-            }
-        }
+        mainFuture = mainFuture
+                .thenAcceptAsync(imported -> {
+                    Properties properties = new Properties();
+                    try {
+                        properties.load(Files.newInputStream(Paths.get("server.properties")));
+                    } catch (IOException e) {
+                        throw new RuntimeException("IOException: Failed to load 'server.properties'!", e);
+                    }
+
+                    String levelName = properties.getProperty("level-name");
+                    if (config.getBoolean("developer-mode")) {
+                        try {
+                            new WorldsDeleter().deleteOldWorlds(Objects.requireNonNull(this.getServer().getWorldContainer().listFiles()), levelName);
+                        } catch (IOException e) {
+                            throw new RuntimeException("IOException: Failed to delete old worlds!", e);
+                        }
+
+                        try {
+                            new LevelChanger(logger).changeLevelName();
+                        } catch (IOException e) {
+                            throw new RuntimeException("IOException: Failed to change 'level-name' in 'server.properties'!", e);
+                        }
+                    }
+
+                    boolean importEvent;
+                    DLDatapackApplier datapackApplier = new DLDatapackApplier(separator);
+                    String worldDatapacksPath = getServer().getWorldContainer() + separator + levelName + separator + "datapacks";
+                    try {
+                        importEvent = datapackApplier.applyDatapacks(datapacksFolder, worldDatapacksPath);
+                    } catch (IOException e) {
+                        throw new RuntimeException("IOException: Failed to apply datapacks!", e);
+                    }
+
+                    if (importEvent) {
+                        logger.info("Restarting server to apply new datapacks!");
+                        getServer().shutdown();
+                    }
+                });
+
+        dlCommand = getCommand("dl");
+        dltpCommand = getCommand("dltp");
+        mainFuture = mainFuture
+                .thenAcceptAsync(serialized -> {
+                    CmdUtil cmdUtil = new CmdUtil();
+                    dlCommand.setExecutor(new DLCommand(cmdUtil, datapacksFolderPath, logger, this, messager, separator));
+                    dlCommand.setTabCompleter(new DLTabCompleter());
+                    dltpCommand.setExecutor(new DLTPCommand(cmdUtil, this, messager));
+                    dltpCommand.setTabCompleter(new DLTPTabCompleter(this));
+                });
     }
 }

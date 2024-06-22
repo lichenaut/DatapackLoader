@@ -4,7 +4,7 @@ import com.lichenaut.datapackloader.Main;
 import com.lichenaut.datapackloader.url.URLImporter;
 import com.lichenaut.datapackloader.util.Messager;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

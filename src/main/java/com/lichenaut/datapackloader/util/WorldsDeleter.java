@@ -11,7 +11,7 @@ public class WorldsDeleter {
 
     public void deleteOldWorlds(File[] containerFiles, String levelName) throws IOException {
         for (File containerFile : containerFiles) {
-            if (!containerFile.isDirectory() || !containerFile.getName().startsWith(levelName)) { // TODO: reversed second condition, check if it works
+            if (!containerFile.isDirectory() || containerFile.getName().startsWith(levelName)) { // Yes, continuing when the name starts with the level name is intentional.
                 continue;
             }
 

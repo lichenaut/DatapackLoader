@@ -2,7 +2,6 @@ package com.lichenaut.datapackloader;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.core.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class DLDatapackApplier {
 
-    private final Logger logger;
     private final String separator;
 
     public boolean applyDatapacks(File datapacksFolder, String worldDatapacksPath) throws IOException {

@@ -1,17 +1,6 @@
 #Turn DatapackLoader off.
 disable-plugin: false
 
-############
-#URL Import#
-############
-
-#Imports datapacks from .zip URLs. The example given may not be up-to-date.
-#Make sure the URL is not uniquely generated, like this one:
-#https://download2297.mediafire.com/6oydubv7s3eg/5xhz1b3hvq0ds3r/BlazeandCave%5C%27s+Advancements+Pack+1.15.2.zip
-datapack-urls:
-#  - 'https://www.stardustlabs.net/s/Terralith_120_v240.zip'
-#  - ...
-
 ####################
 #Developer Options##
 ####################
@@ -20,9 +9,7 @@ datapack-urls:
 starter-datapack: false
 #Uses misode's 'mcmeta' repository: https://github.com/misode/mcmeta
 
-#The server will start up with new worlds loaded with the datapacks in 'datapacks'. This is a chaotic feature!
-#I recommend configuring your server's start script to auto-restart when using this.
-developer-mode:
-  false
-  #WARNING: This is done by changing 'level-name' in 'server.properties' on server startup!
-  #It will make the server restart a second time and delete all worlds. It also generates an error on the first restart!
+#The server will always start up with new worlds loaded with the datapacks in 'datapacks'.
+developer-mode: false
+  #Recommendation: configure your server to auto-restart when using this.
+  #WARNING: This is done by changing 'level-name' in 'server.properties' and deleting old worlds on server startup!

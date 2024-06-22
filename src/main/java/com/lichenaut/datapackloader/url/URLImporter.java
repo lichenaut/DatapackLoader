@@ -4,7 +4,7 @@ import com.lichenaut.datapackloader.Main;
 import com.lichenaut.datapackloader.util.Copier;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -24,6 +24,6 @@ public class URLImporter {
         if (!packZip.exists()) {
             Copier.copy(new BufferedInputStream(url.openStream()), packZipPath);
         }
-        new DPFinder(logger, main, FilenameUtils.getName(url.getPath()), separator).fileWalk(datapacksFolderPath, packZip, true);
+        new DPFinder(logger, main, separator).fileWalk(datapacksFolderPath, packZip, true);
     }
 }

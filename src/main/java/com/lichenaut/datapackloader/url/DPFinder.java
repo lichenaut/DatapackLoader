@@ -5,14 +5,13 @@ import com.lichenaut.datapackloader.util.Copier;
 import com.lichenaut.datapackloader.util.DPChecker;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -21,17 +20,15 @@ public class DPFinder extends SimpleFileVisitor<Path> {
 
     private final Logger logger;
     private final Main main;
-    private final String rootName;
     private final String separator;
-    private boolean importEvent;
 
-    public boolean fileWalk(String datapacksFolderPath, File file, boolean isZip) throws IOException {
+    public void fileWalk(String datapacksFolderPath, File file, boolean isZip) throws IOException {
         String targetFilePath = isZip ? datapacksFolderPath + separator
                 + file.getName().substring(0, file.getName().length() - 4)
                 : file.getPath();
         File targetFile = new File(targetFilePath);
         if (targetFile.exists()) {
-            return false;
+            return;
         }
 
         if (isZip) {
@@ -58,13 +55,11 @@ public class DPFinder extends SimpleFileVisitor<Path> {
             }
 
             if (DPChecker.isDatapack(targetFilePath)) {
-                main.getActiveDatapacks().put(targetFile.getName(), rootName);
                 FileUtils.delete(file);
-                return true;
+                return;
             }
         }
 
-        importEvent = false;
         Files.walkFileTree(Paths.get(targetFilePath), new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
@@ -80,7 +75,7 @@ public class DPFinder extends SimpleFileVisitor<Path> {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
                 String fileName = file.getFileName().toString();
                 if (fileName.endsWith(".zip")) {
-                    new DPFinder(logger, main, rootName, separator).fileWalk(datapacksFolderPath, new File(String.valueOf(file)), true);
+                    new DPFinder(logger, main, separator).fileWalk(datapacksFolderPath, new File(String.valueOf(file)), true);
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -98,10 +93,6 @@ public class DPFinder extends SimpleFileVisitor<Path> {
                 }
 
                 FileUtils.copyDirectory(parentPath.toFile(), datapackTargetFile);
-                HashMap<String, String> activeDatapacks = main.getActiveDatapacks();
-                activeDatapacks.put(parentName, rootName);
-                main.setActiveDatapacks(activeDatapacks);
-                importEvent = true;
                 return FileVisitResult.CONTINUE;
             }
 
@@ -115,7 +106,5 @@ public class DPFinder extends SimpleFileVisitor<Path> {
         if (isZip) {
             FileUtils.delete(file);
         }
-
-        return importEvent;
     }
 }

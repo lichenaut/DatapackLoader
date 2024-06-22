@@ -1,6 +1,6 @@
 # DatapackLoader
 
-DatapackLoader automatically adds datapacks into your server! This plugin is intended as a tool to quicken datapack development, but it can also be used to install datapacks.
+DatapackLoader automatically adds datapacks to your Minecraft server! This plugin can be used to install datapacks and quicken datapack development.
 
 [![Github All Releases](https://img.shields.io/github/downloads/lichenaut/DatapackLoader/total.svg)]()
 

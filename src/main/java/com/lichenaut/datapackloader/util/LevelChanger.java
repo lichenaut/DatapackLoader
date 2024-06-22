@@ -1,8 +1,7 @@
 package com.lichenaut.datapackloader.util;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.core.Logger;
-
+import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
