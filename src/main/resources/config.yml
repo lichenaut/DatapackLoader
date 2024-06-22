@@ -1,18 +1,16 @@
 #Turn DatapackLoader off.
 disable-plugin: false
 
-
 ############
 #URL Import#
 ############
 
 #Imports datapacks from .zip URLs. The example given may not be up-to-date.
 #Make sure the URL is not uniquely generated, like this one:
-  #https://download2297.mediafire.com/6oydubv7s3eg/5xhz1b3hvq0ds3r/BlazeandCave%5C%27s+Advancements+Pack+1.15.2.zip
+#https://download2297.mediafire.com/6oydubv7s3eg/5xhz1b3hvq0ds3r/BlazeandCave%5C%27s+Advancements+Pack+1.15.2.zip
 datapack-urls:
 #  - 'https://www.stardustlabs.net/s/Terralith_120_v240.zip'
 #  - ...
-
 
 ####################
 #Developer Options##
@@ -24,6 +22,7 @@ starter-datapack: false
 
 #The server will start up with new worlds loaded with the datapacks in 'datapacks'. This is a chaotic feature!
 #I recommend configuring your server's start script to auto-restart when using this.
-developer-mode: false
+developer-mode:
+  false
   #WARNING: This is done by changing 'level-name' in 'server.properties' on server startup!
-    #It will make the server restart a second time and delete all worlds. It also generates an error on the first restart!
+  #It will make the server restart a second time and delete all worlds. It also generates an error on the first restart!

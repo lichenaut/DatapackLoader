@@ -1,9 +1,9 @@
 name: DatapackLoader
-version: '${project.version}'
-main: com.lichenaut.datapackloader.DatapackLoader
-api-version: '1.14'
-authors: [ lichenaut ]
-description: Automatically loads datapacks into the server's main world.
+version: "${project.version}"
+main: com.lichenaut.datapackloader.Main
+api-version: "1.20"
+authors: [lichenaut]
+description: Automatically add datapacks to your server.
 load: STARTUP
 commands:
   dl:

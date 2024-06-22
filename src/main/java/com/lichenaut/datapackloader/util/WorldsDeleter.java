@@ -1,0 +1,44 @@
+package com.lichenaut.datapackloader.util;
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+
+public class WorldsDeleter {
+
+    // private final File[] containerFiles; // main.getServer().getWorldContainer().listFiles();
+
+    public void deleteOldWorlds(File[] containerFiles, String levelName) throws IOException {
+        for (File containerFile : containerFiles) {
+            if (!containerFile.isDirectory() || !containerFile.getName().startsWith(levelName)) { // TODO: reversed second condition, check if it works
+                continue;
+            }
+
+            File[] files = containerFile.listFiles();
+            if (files == null) {
+                continue;
+            }
+
+            boolean hasFolder = false, levelDat = false, sessionLock = false;
+            for (File file : files) {
+                if (!hasFolder && file.isDirectory()) {
+                    hasFolder = true;
+                    continue;
+                }
+
+                String fileName = file.getName();
+                if (!levelDat && fileName.equals("level.dat")) {
+                    levelDat = true;
+                } else if (!sessionLock && fileName.equals("session.lock")) {
+                    sessionLock = true;
+                }
+
+                if (sessionLock && levelDat && hasFolder) {
+                    FileUtils.deleteDirectory(containerFile);
+                    break;
+                }
+            }
+        }
+    }
+}

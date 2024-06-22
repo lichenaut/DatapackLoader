@@ -1,31 +1,46 @@
 package com.lichenaut.datapackloader;
 
-import com.lichenaut.datapackloader.utility.DLSep;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.core.Logger;
 
 import java.io.File;
 import java.io.IOException;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@RequiredArgsConstructor
 public class DLDatapackApplier {
 
-    public boolean applyDatapacks(File datapacksFolder, String worldDatapacksPath) {
+    private final Logger logger;
+    private final String separator;
+
+    public boolean applyDatapacks(File datapacksFolder, String worldDatapacksPath) throws IOException {
         File[] datapacksFolderList = datapacksFolder.listFiles();
-        if (datapacksFolderList == null) return false;
+        if (datapacksFolderList == null) {
+            return false;
+        }
 
         File worldDatapacks = new File(worldDatapacksPath);
-        if (!worldDatapacks.exists()) worldDatapacks.mkdirs();
+        if (!worldDatapacks.mkdirs() && !worldDatapacks.exists()) {
+            throw new RuntimeException("Could not create directory '" + worldDatapacksPath + "'!");
+        }
 
         boolean importEvent = false;
         for (File datapack : datapacksFolderList) {
-            if (!datapack.isDirectory()) continue;
+            if (!datapack.isDirectory()) {
+                continue;
+            }
 
-            File datapackTarget = new File(worldDatapacksPath + DLSep.getSep() + datapack.getName());
-            if (datapackTarget.exists()) continue;
+            File datapackTarget = new File(worldDatapacksPath + separator + datapack.getName());
+            if (datapackTarget.exists()) {
+                continue;
+            }
 
-            try {FileUtils.copyDirectory(datapack, datapackTarget);
+            try {
+                FileUtils.copyDirectory(datapack, datapackTarget);
                 importEvent = true;
-            } catch (IOException e) {e.printStackTrace();}
+            } catch (IOException e) {
+                throw new IOException("IOException: Could not copy directory '" + datapack + "' to '" + datapackTarget + "'!\n", e);
+            }
         }
 
         return importEvent;
