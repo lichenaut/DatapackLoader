@@ -1,7 +1,8 @@
 package com.lichenaut.datapackloader.cmd;
 
 import com.lichenaut.datapackloader.Main;
-import com.lichenaut.datapackloader.url.URLImporter;
+import com.lichenaut.datapackloader.util.Cmd;
+import com.lichenaut.datapackloader.dp.Importer;
 import com.lichenaut.datapackloader.util.Messager;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.Logger;
@@ -18,10 +19,10 @@ import java.net.URL;
 import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
-public class DLCommand implements CommandExecutor {
+public class DLCmd implements CommandExecutor {
 
     private static CompletableFuture<Void> commandFuture = CompletableFuture.completedFuture(null);
-    private final CmdUtil cmdUtil;
+    private final Cmd cmd;
     private final String datapacksFolderPath;
     private final Logger logger;
     private final Main main;
@@ -31,16 +32,23 @@ public class DLCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label,
             @Nonnull String[] args) {
-        if (cmdUtil.checkDisallowed(sender, "datapackloader.command")) {
+        if (cmd.checkDisallowed(sender, "datapackloader.command")) {
+            return true;
+        }
+
+        if (args.length == 0) {
+            commandFuture = commandFuture
+                    .thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getInvalidMessage()));
             return true;
         }
 
         if (args[0].equals("help")) {
-            if (cmdUtil.checkDisallowed(sender, "datapackloader.command.help")) {
+            if (cmd.checkDisallowed(sender, "datapackloader.command.help")) {
                 return true;
             }
 
-            commandFuture = commandFuture.thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getHelpMessage()));
+            commandFuture = commandFuture
+                    .thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getHelpMessage()));
             return true;
         } else if (args[0].equals("import")) {
             if (sender instanceof Player) {
@@ -65,7 +73,7 @@ public class DLCommand implements CommandExecutor {
                     .thenAcceptAsync(processed -> {
                         try {
                             URL url = new URI(args[1]).toURL();
-                            new URLImporter(logger, main, separator).importUrl(datapacksFolderPath, url);
+                            new Importer(logger, main, separator).importUrl(datapacksFolderPath, url);
                             logger.info("Success! Stop and start the server to apply changes.");
                         } catch (IOException e) {
                             throw new RuntimeException("IOException: Failed to import datapack.", e);

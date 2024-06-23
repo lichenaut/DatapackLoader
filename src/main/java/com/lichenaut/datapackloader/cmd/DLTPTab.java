@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
-public class DLTPTabCompleter implements TabCompleter {
+public class DLTPTab implements TabCompleter {
 
     private final Main main;
 

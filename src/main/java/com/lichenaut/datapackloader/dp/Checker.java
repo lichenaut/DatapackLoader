@@ -1,8 +1,8 @@
-package com.lichenaut.datapackloader.util;
+package com.lichenaut.datapackloader.dp;
 
 import java.io.File;
 
-public class DPChecker {
+public class Checker {
 
     public static boolean isDatapack(String filePath) {
         File[] files = new File(filePath).listFiles();

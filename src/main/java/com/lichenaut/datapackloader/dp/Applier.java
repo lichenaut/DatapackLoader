@@ -1,4 +1,4 @@
-package com.lichenaut.datapackloader;
+package com.lichenaut.datapackloader.dp;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-public class DLDatapackApplier {
+public class Applier {
 
     private final String separator;
 
@@ -37,7 +37,8 @@ public class DLDatapackApplier {
                 FileUtils.copyDirectory(datapack, datapackTarget);
                 importEvent = true;
             } catch (IOException e) {
-                throw new IOException("IOException: Could not copy directory '" + datapack + "' to '" + datapackTarget + "'!\n", e);
+                throw new IOException(
+                        "IOException: Could not copy directory '" + datapack + "' to '" + datapackTarget + "'!\n", e);
             }
         }
 

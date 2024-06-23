@@ -1,8 +1,7 @@
-package com.lichenaut.datapackloader.url;
+package com.lichenaut.datapackloader.dp;
 
 import com.lichenaut.datapackloader.Main;
 import com.lichenaut.datapackloader.util.Copier;
-import com.lichenaut.datapackloader.util.DPChecker;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
@@ -16,7 +15,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @RequiredArgsConstructor
-public class DPFinder extends SimpleFileVisitor<Path> {
+public class Finder extends SimpleFileVisitor<Path> {
 
     private final Logger logger;
     private final Main main;
@@ -54,7 +53,7 @@ public class DPFinder extends SimpleFileVisitor<Path> {
                 }
             }
 
-            if (DPChecker.isDatapack(targetFilePath)) {
+            if (Checker.isDatapack(targetFilePath)) {
                 FileUtils.delete(file);
                 return;
             }
@@ -75,13 +74,14 @@ public class DPFinder extends SimpleFileVisitor<Path> {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
                 String fileName = file.getFileName().toString();
                 if (fileName.endsWith(".zip")) {
-                    new DPFinder(logger, main, separator).fileWalk(datapacksFolderPath, new File(String.valueOf(file)), true);
+                    new Finder(logger, main, separator).fileWalk(datapacksFolderPath, new File(String.valueOf(file)),
+                            true);
                     return FileVisitResult.CONTINUE;
                 }
 
                 Path parentPath = file.getParent();
                 if (!fileName.equals("pack.mcmeta")
-                        || !DPChecker.isDatapack(String.valueOf(parentPath))) {
+                        || !Checker.isDatapack(String.valueOf(parentPath))) {
                     return FileVisitResult.CONTINUE;
                 }
 

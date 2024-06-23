@@ -1,6 +1,7 @@
 package com.lichenaut.datapackloader.cmd;
 
 import com.lichenaut.datapackloader.Main;
+import com.lichenaut.datapackloader.util.Cmd;
 import com.lichenaut.datapackloader.util.Messager;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.GameMode;
@@ -14,22 +15,23 @@ import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
-public class DLTPCommand implements CommandExecutor {
+public class DLTPCmd implements CommandExecutor {
 
     private static CompletableFuture<Void> commandFuture = CompletableFuture.completedFuture(null);
-    private final CmdUtil cmdUtil;
+    private final Cmd cmd;
     private final Main main;
     private final Messager messager;
 
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label,
             @Nonnull String[] args) {
-        if (cmdUtil.checkDisallowed(sender, "datapackloader.command")) {
+        if (cmd.checkDisallowed(sender, "datapackloader.command")) {
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            commandFuture = commandFuture.thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getOnlyPlayerMessage()));
+            commandFuture = commandFuture
+                    .thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getOnlyPlayerMessage()));
             return true;
         }
 
@@ -38,7 +40,8 @@ public class DLTPCommand implements CommandExecutor {
         }
 
         if (args.length != 1) {
-            commandFuture = commandFuture.thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getInvalidMessage()));
+            commandFuture = commandFuture
+                    .thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getInvalidMessage()));
             return false;
         }
 
@@ -51,7 +54,8 @@ public class DLTPCommand implements CommandExecutor {
             }
         }
 
-        commandFuture = commandFuture.thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getInvalidWorldMessage()));
+        commandFuture = commandFuture
+                .thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getInvalidWorldMessage()));
         return false;
     }
 }

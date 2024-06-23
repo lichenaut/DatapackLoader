@@ -1,4 +1,4 @@
-package com.lichenaut.datapackloader.url;
+package com.lichenaut.datapackloader.dp;
 
 import com.lichenaut.datapackloader.Main;
 import com.lichenaut.datapackloader.util.Copier;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.net.URL;
 
 @RequiredArgsConstructor
-public class URLImporter {
+public class Importer {
 
     private final Logger logger;
     private final Main main;
@@ -24,6 +24,6 @@ public class URLImporter {
         if (!packZip.exists()) {
             Copier.copy(new BufferedInputStream(url.openStream()), packZipPath);
         }
-        new DPFinder(logger, main, separator).fileWalk(datapacksFolderPath, packZip, true);
+        new Finder(logger, main, separator).fileWalk(datapacksFolderPath, packZip, true);
     }
 }

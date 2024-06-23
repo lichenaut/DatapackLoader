@@ -1,6 +1,9 @@
 #Turn DatapackLoader off.
 disable-plugin: false
 
+# Not relevant to the user.
+dev-mode-applied: false
+
 ####################
 #Developer Options##
 ####################

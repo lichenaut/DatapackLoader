@@ -1,8 +1,10 @@
 package com.lichenaut.datapackloader;
 
 import com.lichenaut.datapackloader.cmd.*;
-import com.lichenaut.datapackloader.url.DPFinder;
-import com.lichenaut.datapackloader.url.URLImporter;
+import com.lichenaut.datapackloader.dp.Applier;
+import com.lichenaut.datapackloader.dp.Checker;
+import com.lichenaut.datapackloader.dp.Finder;
+import com.lichenaut.datapackloader.dp.Importer;
 import com.lichenaut.datapackloader.util.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,24 +48,22 @@ public final class Main extends JavaPlugin {
             return;
         }
 
-        new VersionGetter(logger, this).getVersion(version -> {
+        new VersionGetter(this).getVersion(version -> {
             if (!this.getDescription().getVersion().equals(version)) {
                 logger.info("Update available.");
             }
         });
 
-        String pluginFolderPath = getDataFolder().getPath();
-        String datapacksFolderPath = pluginFolderPath + separator + "datapacks";
+        String datapacksFolderPath = getDataFolder().getPath() + separator + "datapacks";
         File datapacksFolder = new File(datapacksFolderPath);
         if (!datapacksFolder.mkdirs() && !datapacksFolder.exists()) {
             throw new RuntimeException("Failed to create 'datapacks' folder!");
         }
 
-        URLImporter urlImporter = new URLImporter(logger, this, separator);
-        DPFinder datapackFinder = new DPFinder(logger, this, separator);
-        File[] files = new File(datapacksFolderPath).listFiles();
+        Finder datapackFinder = new Finder(logger, this, separator);
+        File[] files = datapacksFolder.listFiles();
         if (files != null) {
-            for (File file : files) { // This scan is for datapack .zips added manually.
+            for (File file : files) { // This is for datapack .zips added manually.
                 String fileName = file.getName();
                 if (fileName.endsWith(".zip")) {
                     try {
@@ -72,7 +72,7 @@ public final class Main extends JavaPlugin {
                         throw new RuntimeException("IOException: Failed to walk .zip file!", e);
                     }
                 } else {
-                    if (DPChecker.isDatapack(file.getPath())) {
+                    if (Checker.isDatapack(file.getPath())) {
                         continue;
                     }
 
@@ -85,8 +85,9 @@ public final class Main extends JavaPlugin {
             }
         }
 
+        Importer importer = new Importer(logger, this, separator);
         mainFuture = mainFuture
-                .thenAcceptAsync(deserialized -> { // TODO: rename steps
+                .thenAcceptAsync(declared -> {
                     File[] datapacksFolderFiles = new File(datapacksFolderPath).listFiles();
                     if (datapacksFolderFiles == null || datapacksFolderFiles.length != 0) {
                         return;
@@ -94,15 +95,19 @@ public final class Main extends JavaPlugin {
 
                     if (config.getBoolean("starter-datapack")) {
                         try {
-                            urlImporter.importUrl(datapacksFolderPath, new URI("https://github.com/misode/mcmeta/archive/refs/tags/"
-                                    + getServer().getVersion().split("MC: ")[1].split("[)]")[0] + "-data.zip").toURL());
+                            importer.importUrl(datapacksFolderPath,
+                                    new URI("https://github.com/misode/mcmeta/archive/refs/tags/"
+                                            + getServer().getVersion().split("MC: ")[1].split("[)]")[0] + "-data.zip")
+                                            .toURL());
                         } catch (IOException e) {
                             throw new RuntimeException("IOException: Failed to import starter datapack!", e);
                         } catch (URISyntaxException e) {
-                            throw new RuntimeException("URISyntaxException: Failed to convert starter datapack string to URL!", e);
+                            throw new RuntimeException(
+                                    "URISyntaxException: Failed to convert starter datapack string to URL!", e);
                         }
                     } else {
-                        logger.info("The '...{}' folder is empty. Please execute command 'dl help'.", datapacksFolderPath);
+                        logger.info("The '...{}' folder is empty. Please execute command 'dl help'.",
+                                datapacksFolderPath);
                     }
                 });
 
@@ -115,10 +120,22 @@ public final class Main extends JavaPlugin {
                         throw new RuntimeException("IOException: Failed to load 'server.properties'!", e);
                     }
 
+                    boolean importEvent;
                     String levelName = properties.getProperty("level-name");
-                    if (config.getBoolean("developer-mode")) {
+                    String worldDatapacksPath = getServer().getWorldContainer() + separator + levelName + separator
+                            + "datapacks";
+                    Applier datapackApplier = new Applier(separator);
+                    try {
+                        importEvent = datapackApplier.applyDatapacks(datapacksFolder, worldDatapacksPath);
+                    } catch (IOException e) {
+                        throw new RuntimeException("IOException: Failed to apply datapacks!", e);
+                    }
+
+                    if (config.getBoolean("developer-mode") && !config.getBoolean("dev-mode-applied")) {
                         try {
-                            new WorldsDeleter().deleteOldWorlds(Objects.requireNonNull(this.getServer().getWorldContainer().listFiles()), levelName);
+                            new WorldsDeleter().deleteOldWorlds(
+                                    Objects.requireNonNull(this.getServer().getWorldContainer().listFiles()),
+                                    levelName);
                         } catch (IOException e) {
                             throw new RuntimeException("IOException: Failed to delete old worlds!", e);
                         }
@@ -126,19 +143,16 @@ public final class Main extends JavaPlugin {
                         try {
                             new LevelChanger(logger).changeLevelName();
                         } catch (IOException e) {
-                            throw new RuntimeException("IOException: Failed to change 'level-name' in 'server.properties'!", e);
+                            throw new RuntimeException(
+                                    "IOException: Failed to change 'level-name' in 'server.properties'!", e);
                         }
+
+                        config.set("dev-mode-applied", true);
+                    } else {
+                        config.set("dev-mode-applied", false);
                     }
 
-                    boolean importEvent;
-                    DLDatapackApplier datapackApplier = new DLDatapackApplier(separator);
-                    String worldDatapacksPath = getServer().getWorldContainer() + separator + levelName + separator + "datapacks";
-                    try {
-                        importEvent = datapackApplier.applyDatapacks(datapacksFolder, worldDatapacksPath);
-                    } catch (IOException e) {
-                        throw new RuntimeException("IOException: Failed to apply datapacks!", e);
-                    }
-
+                    saveConfig();
                     if (importEvent) {
                         logger.info("Restarting server to apply new datapacks!");
                         getServer().shutdown();
@@ -148,12 +162,12 @@ public final class Main extends JavaPlugin {
         dlCommand = getCommand("dl");
         dltpCommand = getCommand("dltp");
         mainFuture = mainFuture
-                .thenAcceptAsync(serialized -> {
-                    CmdUtil cmdUtil = new CmdUtil();
-                    dlCommand.setExecutor(new DLCommand(cmdUtil, datapacksFolderPath, logger, this, messager, separator));
-                    dlCommand.setTabCompleter(new DLTabCompleter());
-                    dltpCommand.setExecutor(new DLTPCommand(cmdUtil, this, messager));
-                    dltpCommand.setTabCompleter(new DLTPTabCompleter(this));
+                .thenAcceptAsync(applied -> {
+                    Cmd cmd = new Cmd();
+                    dlCommand.setExecutor(new DLCmd(cmd, datapacksFolderPath, logger, this, messager, separator));
+                    dlCommand.setTabCompleter(new DLTab());
+                    dltpCommand.setExecutor(new DLTPCmd(cmd, this, messager));
+                    dltpCommand.setTabCompleter(new DLTPTab(this));
                 });
     }
 }

@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DLTabCompleter implements TabCompleter {
+public class DLTab implements TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@Nonnull CommandSender sender, @Nonnull Command command,

@@ -7,11 +7,19 @@ import java.io.IOException;
 
 public class WorldsDeleter {
 
-    // private final File[] containerFiles; // main.getServer().getWorldContainer().listFiles();
+    // private final File[] containerFiles; //
+    // main.getServer().getWorldContainer().listFiles();
 
     public void deleteOldWorlds(File[] containerFiles, String levelName) throws IOException {
         for (File containerFile : containerFiles) {
-            if (!containerFile.isDirectory() || containerFile.getName().startsWith(levelName)) { // Yes, continuing when the name starts with the level name is intentional.
+            if (!containerFile.isDirectory() || containerFile.getName().startsWith(levelName)) { // Yes, continuing when
+                                                                                                 // the name starts with
+                                                                                                 // the level name is
+                                                                                                 // intentional.
+                                                                                                 // Developer mode
+                                                                                                 // switched the level
+                                                                                                 // name last server
+                                                                                                 // instance.
                 continue;
             }
 
