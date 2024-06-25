@@ -32,7 +32,7 @@ public final class Main extends JavaPlugin {
 
     private static final Logger logger = LogManager.getLogger("DatapackLoader");
     private static final String separator = FileSystems.getDefault().getSeparator();
-    private final Messager messager = new Messager(this, logger);
+    private final Messager messager = new Messager(logger, this);
     private CompletableFuture<Void> mainFuture = CompletableFuture.completedFuture(null);
     private PluginCommand dlCommand;
     private PluginCommand dltpCommand;
@@ -63,7 +63,7 @@ public final class Main extends JavaPlugin {
         Finder datapackFinder = new Finder(logger, this, separator);
         File[] files = datapacksFolder.listFiles();
         if (files != null) {
-            for (File file : files) { // This is for datapack .zips added manually.
+            for (File file : files) {
                 String fileName = file.getName();
                 if (fileName.endsWith(".zip")) {
                     try {
@@ -154,7 +154,7 @@ public final class Main extends JavaPlugin {
 
                     saveConfig();
                     if (importEvent) {
-                        logger.info("Restarting server to apply new datapacks!");
+                        logger.info("Stopping server to apply new datapacks!");
                         getServer().shutdown();
                     }
                 });
@@ -163,10 +163,10 @@ public final class Main extends JavaPlugin {
         dltpCommand = getCommand("dltp");
         mainFuture = mainFuture
                 .thenAcceptAsync(applied -> {
-                    Cmd cmd = new Cmd();
-                    dlCommand.setExecutor(new DLCmd(cmd, datapacksFolderPath, logger, this, messager, separator));
+                    CmdUtil cmdUtil = new CmdUtil();
+                    dlCommand.setExecutor(new DLCmd(cmdUtil, datapacksFolderPath, logger, this, messager, separator));
                     dlCommand.setTabCompleter(new DLTab());
-                    dltpCommand.setExecutor(new DLTPCmd(cmd, this, messager));
+                    dltpCommand.setExecutor(new DLTPCmd(cmdUtil, this, messager));
                     dltpCommand.setTabCompleter(new DLTPTab(this));
                 });
     }

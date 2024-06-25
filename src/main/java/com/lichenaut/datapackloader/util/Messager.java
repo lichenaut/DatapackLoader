@@ -23,7 +23,7 @@ public class Messager {
     private final BaseComponent[] onlyPlayerMessage;
     private final BaseComponent[] zipMessage;
 
-    public Messager(Main main, Logger logger) {
+    public Messager(Logger logger, Main main) {
         this.logger = logger;
         this.main = main;
         helpMessage = new ComponentBuilder("DatapackLoader documentation: ")

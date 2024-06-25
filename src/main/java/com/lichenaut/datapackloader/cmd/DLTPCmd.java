@@ -1,7 +1,7 @@
 package com.lichenaut.datapackloader.cmd;
 
 import com.lichenaut.datapackloader.Main;
-import com.lichenaut.datapackloader.util.Cmd;
+import com.lichenaut.datapackloader.util.CmdUtil;
 import com.lichenaut.datapackloader.util.Messager;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.GameMode;
@@ -18,14 +18,14 @@ import java.util.concurrent.CompletableFuture;
 public class DLTPCmd implements CommandExecutor {
 
     private static CompletableFuture<Void> commandFuture = CompletableFuture.completedFuture(null);
-    private final Cmd cmd;
+    private final CmdUtil cmdUtil;
     private final Main main;
     private final Messager messager;
 
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label,
             @Nonnull String[] args) {
-        if (cmd.checkDisallowed(sender, "datapackloader.command")) {
+        if (cmdUtil.checkDisallowed(sender, "datapackloader.command")) {
             return true;
         }
 

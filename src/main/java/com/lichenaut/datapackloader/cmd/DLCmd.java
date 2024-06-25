@@ -1,7 +1,7 @@
 package com.lichenaut.datapackloader.cmd;
 
 import com.lichenaut.datapackloader.Main;
-import com.lichenaut.datapackloader.util.Cmd;
+import com.lichenaut.datapackloader.util.CmdUtil;
 import com.lichenaut.datapackloader.dp.Importer;
 import com.lichenaut.datapackloader.util.Messager;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.concurrent.CompletableFuture;
 public class DLCmd implements CommandExecutor {
 
     private static CompletableFuture<Void> commandFuture = CompletableFuture.completedFuture(null);
-    private final Cmd cmd;
+    private final CmdUtil cmdUtil;
     private final String datapacksFolderPath;
     private final Logger logger;
     private final Main main;
@@ -32,7 +32,7 @@ public class DLCmd implements CommandExecutor {
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label,
             @Nonnull String[] args) {
-        if (cmd.checkDisallowed(sender, "datapackloader.command")) {
+        if (cmdUtil.checkDisallowed(sender, "datapackloader.command")) {
             return true;
         }
 
@@ -43,7 +43,7 @@ public class DLCmd implements CommandExecutor {
         }
 
         if (args[0].equals("help")) {
-            if (cmd.checkDisallowed(sender, "datapackloader.command.help")) {
+            if (cmdUtil.checkDisallowed(sender, "datapackloader.command.help")) {
                 return true;
             }
 
@@ -85,6 +85,7 @@ public class DLCmd implements CommandExecutor {
                         logger.error(e.getMessage());
                         return null;
                     });
+
             return true;
         }
 
