@@ -10,3 +10,4 @@ commands:
     description: "Base command for 'help' and 'import' commands."
   dltp:
     description: "Teleport to the center of any world in spectator mode."
+folia-supported: true

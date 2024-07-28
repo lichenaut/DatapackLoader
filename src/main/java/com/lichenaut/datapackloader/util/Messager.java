@@ -37,7 +37,7 @@ public class Messager {
                 .append("dl import ").color(ChatColor.GRAY)
                 .append("<").color(ChatColor.RED)
                 .append("url").color(ChatColor.GRAY)
-                .append(">' in console, or '/")
+                .append(">' in console, or '/").color(ChatColor.RED)
                 .append("dltp ").color(ChatColor.GRAY)
                 .append("<").color(ChatColor.RED)
                 .append("worldname").color(ChatColor.GRAY)

@@ -15,20 +15,31 @@ import java.util.function.Consumer;
 public class VersionGetter {
 
     private final JavaPlugin plugin;
+    private final GenUtil genUtil;
 
     public void getVersion(final Consumer<String> consumer) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            try (InputStream inputStream = new URI("https://api.spigotmc.org/legacy/update.php?resource=" + 107149)
-                    .toURL()
-                    .openStream(); Scanner scanner = new Scanner(inputStream)) {
-                if (scanner.hasNext()) {
-                    consumer.accept(scanner.next());
-                }
-            } catch (IOException e) {
-                throw new RuntimeException("IOException: Unable to check for updates!", e);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException("URISyntaxException: Unable to check for updates!", e);
+        if (genUtil.isFolia()) {
+            plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
+                fetchVersion(consumer);
+            });
+        } else {
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                fetchVersion(consumer);
+            });
+        }
+    }
+
+    private void fetchVersion(Consumer<String> consumer) {
+        try (InputStream inputStream = new URI("https://api.spigotmc.org/legacy/update.php?resource=" + 107149)
+                .toURL()
+                .openStream(); Scanner scanner = new Scanner(inputStream)) {
+            if (scanner.hasNext()) {
+                consumer.accept(scanner.next());
             }
-        });
+        } catch (IOException e) {
+            throw new RuntimeException("IOException: Unable to check for updates!", e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("URISyntaxException: Unable to check for updates!", e);
+        }
     }
 }

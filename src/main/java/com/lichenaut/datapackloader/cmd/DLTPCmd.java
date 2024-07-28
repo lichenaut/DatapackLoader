@@ -1,7 +1,7 @@
 package com.lichenaut.datapackloader.cmd;
 
 import com.lichenaut.datapackloader.Main;
-import com.lichenaut.datapackloader.util.CmdUtil;
+import com.lichenaut.datapackloader.util.GenUtil;
 import com.lichenaut.datapackloader.util.Messager;
 import lombok.RequiredArgsConstructor;
 import org.bukkit.GameMode;
@@ -18,14 +18,14 @@ import java.util.concurrent.CompletableFuture;
 public class DLTPCmd implements CommandExecutor {
 
     private static CompletableFuture<Void> commandFuture = CompletableFuture.completedFuture(null);
-    private final CmdUtil cmdUtil;
+    private final GenUtil genUtil;
     private final Main main;
     private final Messager messager;
 
     @Override
     public boolean onCommand(@Nonnull CommandSender sender, @Nonnull Command command, @Nonnull String label,
             @Nonnull String[] args) {
-        if (cmdUtil.checkDisallowed(sender, "datapackloader.command")) {
+        if (genUtil.checkDisallowed(sender, "datapackloader.command")) {
             return true;
         }
 
@@ -49,7 +49,12 @@ public class DLTPCmd implements CommandExecutor {
             if (args[0].equalsIgnoreCase(world.getName())) {
                 Player player = (Player) sender;
                 player.setGameMode(GameMode.SPECTATOR);
-                player.teleport(world.getSpawnLocation());
+
+                if (genUtil.isFolia()) {
+                    player.teleportAsync(world.getSpawnLocation());
+                } else {
+                    player.teleport(world.getSpawnLocation());
+                }
                 return true;
             }
         }

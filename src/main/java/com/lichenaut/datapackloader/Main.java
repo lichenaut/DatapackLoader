@@ -1,6 +1,9 @@
 package com.lichenaut.datapackloader;
 
-import com.lichenaut.datapackloader.cmd.*;
+import com.lichenaut.datapackloader.cmd.DLCmd;
+import com.lichenaut.datapackloader.cmd.DLTPCmd;
+import com.lichenaut.datapackloader.cmd.DLTPTab;
+import com.lichenaut.datapackloader.cmd.DLTab;
 import com.lichenaut.datapackloader.dp.Applier;
 import com.lichenaut.datapackloader.dp.Checker;
 import com.lichenaut.datapackloader.dp.Finder;
@@ -32,14 +35,17 @@ public final class Main extends JavaPlugin {
 
     private static final Logger logger = LogManager.getLogger("DatapackLoader");
     private static final String separator = FileSystems.getDefault().getSeparator();
+    private final GenUtil genUtil = new GenUtil();
     private final Messager messager = new Messager(logger, this);
     private CompletableFuture<Void> mainFuture = CompletableFuture.completedFuture(null);
+    private boolean noConfig;
     private PluginCommand dlCommand;
     private PluginCommand dltpCommand;
 
     @Override
     public void onEnable() {
         new Metrics(this, 17272);
+        noConfig = !new File(getDataFolder(), "config.yml").exists();
         getConfig().options().copyDefaults();
         saveDefaultConfig();
         Configuration config = getConfig();
@@ -48,7 +54,7 @@ public final class Main extends JavaPlugin {
             return;
         }
 
-        new VersionGetter(this).getVersion(version -> {
+        new VersionGetter(this, genUtil).getVersion(version -> {
             if (!this.getDescription().getVersion().equals(version)) {
                 logger.info("Update available.");
             }
@@ -113,6 +119,10 @@ public final class Main extends JavaPlugin {
 
         mainFuture = mainFuture
                 .thenAcceptAsync(imported -> {
+                    if (noConfig) {
+                        return;
+                    }
+
                     Properties properties = new Properties();
                     try {
                         properties.load(Files.newInputStream(Paths.get("server.properties")));
@@ -163,10 +173,9 @@ public final class Main extends JavaPlugin {
         dltpCommand = getCommand("dltp");
         mainFuture = mainFuture
                 .thenAcceptAsync(applied -> {
-                    CmdUtil cmdUtil = new CmdUtil();
-                    dlCommand.setExecutor(new DLCmd(cmdUtil, datapacksFolderPath, logger, this, messager, separator));
+                    dlCommand.setExecutor(new DLCmd(genUtil, datapacksFolderPath, logger, this, messager, separator));
                     dlCommand.setTabCompleter(new DLTab());
-                    dltpCommand.setExecutor(new DLTPCmd(cmdUtil, this, messager));
+                    dltpCommand.setExecutor(new DLTPCmd(genUtil, this, messager));
                     dltpCommand.setTabCompleter(new DLTPTab(this));
                 });
     }
