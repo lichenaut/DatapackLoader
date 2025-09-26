@@ -19,13 +19,9 @@ public class VersionGetter {
 
     public void getVersion(final Consumer<String> consumer) {
         if (genUtil.isFolia()) {
-            plugin.getServer().getAsyncScheduler().runNow(plugin, task -> {
-                fetchVersion(consumer);
-            });
+            plugin.getServer().getAsyncScheduler().runNow(plugin, task -> fetchVersion(consumer));
         } else {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                fetchVersion(consumer);
-            });
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> fetchVersion(consumer));
         }
     }
 

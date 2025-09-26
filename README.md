@@ -1,5 +1,7 @@
 # DatapackLoader
 
+Note: this codebase has moved to Codeberg: https://codeberg.org/lichenaut/DatapackLoader
+
 DatapackLoader automatically adds datapacks to your Minecraft server! This plugin can be used to install datapacks and quicken datapack development. DatapackLoader supports Folia, but does not make Folia-incompatible datapacks compatible with Folia.
 
 [![Github All Releases](https://img.shields.io/github/downloads/lichenaut/DatapackLoader/total.svg)]()

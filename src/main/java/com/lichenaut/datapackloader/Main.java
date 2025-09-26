@@ -46,7 +46,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         new Metrics(this, 17272);
         noConfig = !new File(getDataFolder(), "config.yml").exists();
-        getConfig().options().copyDefaults();
+        getConfig().options().copyDefaults(true);
         saveDefaultConfig();
         Configuration config = getConfig();
         if (config.getBoolean("disable-plugin")) {

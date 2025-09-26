@@ -5,6 +5,7 @@ import com.lichenaut.datapackloader.util.Copier;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -61,7 +62,7 @@ public class Finder extends SimpleFileVisitor<Path> {
 
         Files.walkFileTree(Paths.get(targetFilePath), new SimpleFileVisitor<>() {
             @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+            public @NotNull FileVisitResult preVisitDirectory(@NotNull Path dir, @NotNull BasicFileAttributes attrs) {
                 String dirName = dir.getFileName().toString();
                 if (dirName.equals("data") || dirName.equals("assets")) {
                     return FileVisitResult.SKIP_SUBTREE;
@@ -71,7 +72,7 @@ public class Finder extends SimpleFileVisitor<Path> {
             }
 
             @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
+            public @NotNull FileVisitResult visitFile(@NotNull Path file, @NotNull BasicFileAttributes attr) throws IOException {
                 String fileName = file.getFileName().toString();
                 if (fileName.endsWith(".zip")) {
                     new Finder(logger, main, separator).fileWalk(datapacksFolderPath, new File(String.valueOf(file)),
@@ -97,7 +98,7 @@ public class Finder extends SimpleFileVisitor<Path> {
             }
 
             @Override
-            public FileVisitResult visitFileFailed(Path file, IOException e) throws IOException {
+            public @NotNull FileVisitResult visitFileFailed(@NotNull Path file, @NotNull IOException e) throws IOException {
                 throw new IOException("IOException: Failed to visit file '" + file + "'!\n", e);
             }
         });

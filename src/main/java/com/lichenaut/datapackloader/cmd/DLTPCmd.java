@@ -29,7 +29,7 @@ public class DLTPCmd implements CommandExecutor {
             return true;
         }
 
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             commandFuture = commandFuture
                     .thenAcceptAsync(processed -> messager.sendMsg(sender, messager.getOnlyPlayerMessage()));
             return true;
@@ -47,7 +47,6 @@ public class DLTPCmd implements CommandExecutor {
 
         for (World world : main.getServer().getWorlds()) {
             if (args[0].equalsIgnoreCase(world.getName())) {
-                Player player = (Player) sender;
                 player.setGameMode(GameMode.SPECTATOR);
 
                 if (genUtil.isFolia()) {
